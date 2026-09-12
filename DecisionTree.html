@@ -37,17 +37,21 @@
   #landing{
     position:relative;
     min-height:100vh;
-    display:flex; align-items:center; justify-content:center;
-    padding: 24px;
+    display:flex; 
+    flex-direction:column;
+    align-items:center; 
+    justify-content:center;
+    padding: 24px 24px 36px;
+    gap: 20px;
   }
   .landing-card{
     position:relative; z-index:2;
     background: var(--card);
     border: 3px solid var(--card-border);
     border-radius: 28px;
-    max-width: 620px;
+    max-width: 760px;
     width:100%;
-    padding: 40px 36px 34px;
+    padding: 36px 28px 30px;
     box-shadow: 0 18px 0 -8px var(--shadow), 0 10px 30px var(--shadow);
     text-align:center;
   }
@@ -60,10 +64,10 @@
   .landing-card .sub{
     font-size: 1.05rem;
     color: #6b5f4d;
-    margin: 0 0 26px;
+    margin: 0 0 22px;
   }
   .badge-row{
-    display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom: 28px;
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom: 24px;
   }
   .badge{
     background:#fff6e0; border:2px solid #FFE1A0; color:#8a6a1f;
@@ -71,21 +75,52 @@
   }
   .pick-title{ font-size:1.2rem; margin: 0 0 16px; color: var(--ink); font-weight:700;}
   .dataset-row{
-    display:flex; gap:18px; justify-content:center; flex-wrap:wrap;
+    display:flex; gap:14px; justify-content:center; flex-wrap:wrap;
   }
   .dataset-btn{
     cursor:pointer; border: 3px solid transparent;
-    background: #fff; border-radius: 22px; padding: 20px 26px;
-    width: 220px;
+    background: #fff; border-radius: 22px; padding: 18px 16px;
+    width: 210px;
     box-shadow: 0 8px 0 -3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.08);
     transition: transform .15s ease, border-color .15s ease;
     font-family: inherit;
   }
   .dataset-btn:hover{ transform: translateY(-4px); border-color: var(--sun); }
   .dataset-btn:active{ transform: translateY(0px); }
-  .dataset-emoji{ font-size: 2.6rem; display:block; margin-bottom:8px; }
+  .dataset-emoji{ font-size: 2.3rem; display:block; margin-bottom:8px; }
   .dataset-name{ font-family:'Gaegu',cursive; font-size:1.3rem; color: var(--leaf-dark); font-weight:700; }
-  .dataset-desc{ font-size:0.82rem; color:#8a8071; margin-top:4px; }
+  .dataset-desc{ font-size:0.8rem; color:#8a8071; margin-top:4px; line-height:1.3; }
+
+  /* 초록색 바탕 위 저작권 표시 스타일 */
+  .copyright-box {
+    text-align: center;
+    color: #244218;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    user-select: none;
+    font-family: 'Gaegu', cursive;
+  }
+  .copyright-box .sub-top {
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    font-weight: 700;
+    color: #355B27;
+    text-transform: uppercase;
+  }
+  .copyright-box .main-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1A3611;
+    margin: 0;
+    line-height: 1.15;
+  }
+  .copyright-box .sub-bottom {
+    font-size: 0.82rem;
+    color: #355B27;
+    font-weight: 700;
+  }
 
   /* ---------- Play screen ---------- */
   #play{ display:none; min-height:100vh; flex-direction:column; }
@@ -120,7 +155,7 @@
   }
 
   .tree-scroll{
-    flex:1; overflow:auto; padding: 40px 24px 80px;
+    flex:1; overflow:auto; padding: 40px 24px 40px;
   }
 
   ul.tree, ul.tree ul{
@@ -203,7 +238,8 @@
   .stuck-text{ font-size:0.8rem; color:#a14b3f; margin-top:6px; font-weight:600; }
 
   footer.made-by{
-    text-align:center; font-size:0.78rem; color:#5c6b4a; padding: 12px 0 18px;
+    text-align:center; font-size:0.78rem; color:#315222; padding: 12px 0 24px;
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
   }
 
   .overlay{
@@ -241,10 +277,10 @@
   }
   .close-btn:hover{ background:#e6dcc4; }
 
-  @media (max-width: 560px){
+  @media (max-width: 640px){
     .landing-card{ padding: 30px 20px 26px; }
     .dataset-btn{ width: 100%; padding:16px 10px; }
-    .tree-scroll{ padding: 28px 10px 60px; }
+    .tree-scroll{ padding: 28px 10px 40px; }
     ul.tree li{ padding: 34px 6px 0; }
   }
 </style>
@@ -272,7 +308,18 @@
         <span class="dataset-name">놀이와 취미</span>
         <span class="dataset-desc">8가지 활동을 질문으로 구분해요</span>
       </button>
+      <button class="dataset-btn" data-set="foods">
+        <span class="dataset-emoji">🍕🍦🍗</span>
+        <span class="dataset-name">맛있는 간식</span>
+        <span class="dataset-desc">8가지 인기 간식을 질문으로 구분해요</span>
+      </button>
     </div>
+  </div>
+
+  <div class="copyright-box">
+    <span class="sub-top">CODING CREATION</span>
+    <span class="main-title">Copyright by 정선쌤</span>
+    <span class="sub-bottom">Made with creativity 💻</span>
   </div>
 </div>
 
@@ -295,7 +342,14 @@
   <div class="tree-scroll">
     <ul class="tree" id="treeRoot"></ul>
   </div>
-  <footer class="made-by">🌱 질문을 계속 눌러서 8개 항목을 모두 정답 노드로 만들어 보세요!</footer>
+  <footer class="made-by">
+    <span>🌱 질문을 계속 눌러서 8개 항목을 모두 정답 노드로 만들어 보세요!</span>
+    <div class="copyright-box">
+      <span class="sub-top">CODING CREATION</span>
+      <span class="main-title">Copyright by 정선쌤</span>
+      <span class="sub-bottom">Made with creativity 💻</span>
+    </div>
+  </footer>
 
   <div id="learnOverlay" class="overlay">
     <div class="learn-modal">
@@ -364,6 +418,29 @@
         { attr: 'usesWheels', text: '🚲 바퀴가 달린 기구를 타나요?' },
         { attr: 'isCreative', text: '🎨 물감이나 연필로 직접 그림을 그리는 활동인가요?' },
         { attr: 'isPuzzle', text: '🧩 조각들을 서로 끼워 맞춰서 완성하나요?' }
+      ]
+    },
+    foods: {
+      title: "맛있는 간식 결정트리",
+      emoji: "🍕",
+      items: [
+        { id: 'pizza', emoji: '🍕', name: '피자', attrs: { isBreadBased: true, isSweet: false, isBirthday: false, isSlicePizza: true, isCold: false, hasSoup: false, isPotato: false } },
+        { id: 'burger', emoji: '🍔', name: '햄버거', attrs: { isBreadBased: true, isSweet: false, isBirthday: false, isSlicePizza: false, isCold: false, hasSoup: false, isPotato: false } },
+        { id: 'donut', emoji: '🍩', name: '도넛', attrs: { isBreadBased: true, isSweet: true, isBirthday: false, isSlicePizza: false, isCold: false, hasSoup: false, isPotato: false } },
+        { id: 'cake', emoji: '🍰', name: '케이크', attrs: { isBreadBased: true, isSweet: true, isBirthday: true, isSlicePizza: false, isCold: false, hasSoup: false, isPotato: false } },
+        { id: 'ramen', emoji: '🍜', name: '라면', attrs: { isBreadBased: false, isSweet: false, isBirthday: false, isSlicePizza: false, isCold: false, hasSoup: true, isPotato: false } },
+        { id: 'icecream', emoji: '🍦', name: '아이스크림', attrs: { isBreadBased: false, isSweet: true, isBirthday: false, isSlicePizza: false, isCold: true, hasSoup: false, isPotato: false } },
+        { id: 'chicken', emoji: '🍗', name: '치킨', attrs: { isBreadBased: false, isSweet: false, isBirthday: false, isSlicePizza: false, isCold: false, hasSoup: false, isPotato: false } },
+        { id: 'fries', emoji: '🍟', name: '감자튀김', attrs: { isBreadBased: false, isSweet: false, isBirthday: false, isSlicePizza: false, isCold: false, hasSoup: false, isPotato: true } }
+      ],
+      questions: [
+        { attr: 'isBreadBased', text: '🍞 빵이나 도우(반죽)가 기반이 되는 음식인가요?' },
+        { attr: 'isSweet', text: '🍩 달콤하게 먹는 디저트(후식)인가요?' },
+        { attr: 'isBirthday', text: '🎂 생일 파티 때 촛불을 꽂고 잘라 먹나요?' },
+        { attr: 'isSlicePizza', text: '🍕 넓은 판에 구워 세모 모양으로 잘라 먹나요?' },
+        { attr: 'isCold', text: '🧊 얼려서 차갑게 먹는 음식인가요?' },
+        { attr: 'hasSoup', text: '🍜 따뜻한 국물과 면이 함께 있는 요리인가요?' },
+        { attr: 'isPotato', text: '🥔 감자를 기름에 바삭하게 튀긴 음식인가요?' }
       ]
     }
   };
