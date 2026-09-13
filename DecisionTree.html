@@ -277,6 +277,117 @@
   }
   .close-btn:hover{ background:#e6dcc4; }
 
+  /* ---------- AI Learning Modal Styles ---------- */
+  .ai-concept-btn {
+    cursor: pointer;
+    background: #EAF5E1;
+    border: 2px dashed #84C365;
+    color: #2E6B49;
+    font-family: 'Gaegu', cursive;
+    font-size: 1.15rem;
+    font-weight: 700;
+    padding: 10px 22px;
+    border-radius: 999px;
+    margin-top: 18px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+  }
+  .ai-concept-btn:hover {
+    background: #4C9A6B;
+    color: #ffffff;
+    border-color: #2E6B49;
+    transform: translateY(-2px);
+  }
+
+  .types-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin: 14px 0 20px;
+  }
+  .type-card {
+    background: #FDFBF7;
+    border: 2px solid #EADBCE;
+    border-radius: 16px;
+    padding: 14px 12px;
+    text-align: center;
+  }
+  .type-card.highlight {
+    background: #EBF8EE;
+    border-color: #83CF98;
+  }
+  .type-title {
+    font-family: 'Gaegu', cursive;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--leaf-dark);
+    margin-bottom: 6px;
+  }
+  .type-desc {
+    font-size: 0.8rem;
+    color: #5c5243;
+    line-height: 1.4;
+  }
+
+  .beach-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 16px;
+    font-size: 0.85rem;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .beach-table th, .beach-table td {
+    padding: 8px 12px;
+    text-align: center;
+    border-bottom: 1px solid #EEE5D8;
+  }
+  .beach-table th {
+    background: #F3EBDC;
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .beach-table td:first-child {
+    font-weight: 700;
+    color: var(--leaf-dark);
+  }
+
+  .flow-box {
+    background: #F8F6EF;
+    border: 2px solid #E2D7C3;
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-top: 10px;
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .flow-step:last-child { margin-bottom: 0; }
+  .flow-num {
+    background: var(--leaf-dark);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
   @media (max-width: 640px){
     .landing-card{ padding: 30px 20px 26px; }
     .dataset-btn{ width: 100%; padding:16px 10px; }
@@ -314,6 +425,11 @@
         <span class="dataset-desc">8가지 인기 간식을 질문으로 구분해요</span>
       </button>
     </div>
+
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:18px;">
+      <button class="ai-concept-btn" id="aiConceptBtn">🤖 인공지능 학습방법 & 지도학습 알아보기</button>
+      <button class="ai-concept-btn" id="learnLandingBtn" style="background:#FFF3E0; border-color:#FFB74D; color:#C75100;">📖 결정트리의 핵심 원리</button>
+    </div>
   </div>
 
   <div class="copyright-box">
@@ -333,7 +449,8 @@
       </div>
     </div>
     <div class="topbar-buttons">
-      <button class="pill-btn" id="learnBtn">💡 무엇을 배웠을까요?</button>
+      <button class="pill-btn" id="aiConceptPlayBtn">🤖 AI 학습방법</button>
+      <button class="pill-btn" id="learnBtn">📖 결정트리 핵심 원리</button>
       <button class="pill-btn" id="switchBtn">주제 바꾸기</button>
       <button class="pill-btn primary" id="resetBtn">처음부터 다시</button>
     </div>
@@ -350,22 +467,111 @@
       <span class="sub-bottom">Made with creativity 💻</span>
     </div>
   </footer>
+</div>
 
-  <div id="learnOverlay" class="overlay">
-    <div class="learn-modal">
-      <button class="close-btn" id="closeLearnBtn">✕</button>
-      <h2>💡 이 체험에서 알 수 있는 것</h2>
-      <ul class="learn-list">
-        <li><b>결정트리는 "예/아니오 질문의 연속"이에요.</b> 질문 하나를 답할 때마다 남은 후보가 점점 줄어들고, 결국 하나만 남으면 그게 정답이에요.</li>
-        <li><b>질문의 순서에 따라 나무 모양이 달라져요.</b> 같은 8가지 데이터라도 어떤 질문을 먼저 하느냐에 따라 가지가 빨리 갈라질 수도, 늦게 갈라질 수도 있어요.</li>
-        <li><b>실생활에도 같은 원리가 쓰여요.</b> 스무고개 게임은 물론, 병원에서 증상으로 병을 좁혀가는 것, 이메일이 스팸인지 아닌지 컴퓨터가 구분하는 것도 결정트리와 같은 방식을 사용해요.</li>
-      </ul>
-      <h2>🌱 더 좋은 첫 질문(분류 기준)을 고르는 법</h2>
-      <ul class="learn-list">
-        <li><b>최대한 반씩 나누는 질문이 좋아요.</b> 8명 중 4명/4명으로 나누는 질문이, 7명/1명으로 나누는 질문보다 더 효율적이에요. 한쪽에 몰리면 그 다음에도 질문을 많이 해야 하거든요.</li>
-        <li><b>겹치지 않는 새로운 정보를 주는 질문이 좋아요.</b> 이미 나눈 기준과 비슷한 질문을 또 하면 그룹이 잘 나뉘지 않아요.</li>
-      </ul>
-      <p class="learn-tip">👉 실제 인공지능의 결정트리 알고리즘(예: ID3, CART)도 이 원리를 사용해요. "정보 이득(Information Gain)"이나 "지니 불순도(Gini Impurity)"라는 방법으로, 그룹을 가장 고르고 순수하게 나누는 질문을 자동으로 찾아서 사용합니다!</p>
+<div id="learnOverlay" class="overlay">
+  <div class="learn-modal">
+    <button class="close-btn" id="closeLearnBtn">✕</button>
+    <h2>💡 이 체험에서 알 수 있는 것</h2>
+    <ul class="learn-list">
+      <li><b>결정트리는 "예/아니오 질문의 연속"이에요.</b> 질문 하나를 답할 때마다 남은 후보가 점점 줄어들고, 결국 하나만 남으면 그게 정답이에요.</li>
+      <li><b>질문의 순서에 따라 나무 모양이 달라져요.</b> 같은 8가지 데이터라도 어떤 질문을 먼저 하느냐에 따라 가지가 빨리 갈라질 수도, 늦게 갈라질 수도 있어요.</li>
+      <li><b>실생활에도 같은 원리가 쓰여요.</b> 스무고개 게임은 물론, 병원에서 증상으로 병을 좁혀가는 것, 이메일이 스팸인지 아닌지 컴퓨터가 구분하는 것도 결정트리와 같은 방식을 사용해요.</li>
+    </ul>
+    <h2>🌱 더 좋은 첫 질문(분류 기준)을 고르는 법</h2>
+    <ul class="learn-list">
+      <li><b>최대한 반씩 나누는 질문이 좋아요.</b> 8명 중 4명/4명으로 나누는 질문이, 7명/1명으로 나누는 질문보다 더 효율적이에요. 한쪽에 몰리면 그 다음에도 질문을 많이 해야 하거든요.</li>
+      <li><b>겹치지 않는 새로운 정보를 주는 질문이 좋아요.</b> 이미 나눈 기준과 비슷한 질문을 또 하면 그룹이 잘 나뉘지 않아요.</li>
+    </ul>
+    <p class="learn-tip">👉 실제 인공지능의 결정트리 알고리즘(예: ID3, CART)도 이 원리를 사용해요. "정보 이득(Information Gain)"이나 "지니 불순도(Gini Impurity)"라는 방법으로, 그룹을 가장 고르고 순수하게 나누는 질문을 자동으로 찾아서 사용합니다!</p>
+  </div>
+</div>
+
+<div id="aiConceptOverlay" class="overlay">
+  <div class="learn-modal">
+    <button class="close-btn" id="closeAiConceptBtn">✕</button>
+    <h2>🤖 인공지능의 3가지 학습 방법</h2>
+    <div class="types-grid">
+      <div class="type-card highlight">
+        <div class="type-title">🎯 지도학습</div>
+        <div class="type-desc"><b>문제와 정답(레이블)</b>을 함께 주어서 규칙을 학습해요.</div>
+      </div>
+      <div class="type-card">
+        <div class="type-title">🔍 비지도학습</div>
+        <div class="type-desc">정답 없이 데이터만 보고 숨겨진 특징이나 그룹을 스스로 찾아요.</div>
+      </div>
+      <div class="type-card">
+        <div class="type-title">🎮 강화학습</div>
+        <div class="type-desc">시행착오를 겪으며 보상(점수)을 최대로 얻는 방법을 익혀요.</div>
+      </div>
+    </div>
+
+    <h2>🏖️ 결정트리는 왜 지도학습일까요?</h2>
+    <p style="font-size: 0.9rem; line-height: 1.5; color: #4a4232;">
+      지도학습은 <b>"문제(입력 속성)"</b>와 <b>"정답(레이블)"</b>을 함께 알려주며 학습하는 방법입니다.
+    </p>
+
+    <h3>1. 학습 데이터</h3>
+    <p style="font-size: 0.88rem; color: #5c5243; margin-bottom: 6px;">
+      예를 들어 제주 해수욕장 데이터를 이렇게 준비했다고 가정해 볼게요.
+    </p>
+
+    <table class="beach-table">
+      <thead>
+        <tr>
+          <th>해수욕장</th>
+          <th>백사장 길이</th>
+          <th>샤워장 수</th>
+          <th>화장실 수</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>협재해수욕장</td>
+          <td>200m</td>
+          <td>2</td>
+          <td>3</td>
+        </tr>
+        <tr>
+          <td>함덕해수욕장</td>
+          <td>300m</td>
+          <td>4</td>
+          <td>5</td>
+        </tr>
+        <tr>
+          <td>이호테우해수욕장</td>
+          <td>250m</td>
+          <td>3</td>
+          <td>4</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p style="font-size: 0.88rem; color: #355B27; font-weight: 700; margin-top: 8px;">
+      이때 결정트리가 학습하는 것은 다음과 같습니다:
+    </p>
+    <ul class="learn-list">
+      <li><b>입력 속성(문제):</b> 백사장 길이, 샤워장 수, 화장실 수</li>
+      <li><b>정답(레이블):</b> 해수욕장 이름</li>
+    </ul>
+    <p class="learn-tip" style="margin-top: 10px;">
+      👉 즉, 해수욕장 이름이 <b>정답으로 포함된 데이터를 학습</b>한다면 <b>지도학습</b>입니다!
+    </p>
+
+    <h3>2. 왜 지도학습일까요?</h3>
+    <div class="flow-box">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div><b>학습할 때:</b> "백사장 길이 200m, 샤워장 2개, 화장실 3개" ➔ <span style="color:#2E6B49; font-weight:700;">정답: 협재해수욕장</span></div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div><b>결정트리 학습:</b> 속성과 해수욕장 이름 사이의 관계와 규칙을 익혀요.</div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div><b>새로운 조건 입력:</b> "백사장 길이 210m, 샤워장 2개, 화장실 3개" ➔ <span style="color:#FF7A6B; font-weight:700;">예측 결과: 협재해수욕장</span></div>
+      </div>
     </div>
   </div>
 </div>
@@ -621,9 +827,23 @@
   });
 
   const learnOverlay = document.getElementById('learnOverlay');
-  document.getElementById('learnBtn').addEventListener('click', () => learnOverlay.classList.add('show'));
-  document.getElementById('closeLearnBtn').addEventListener('click', () => learnOverlay.classList.remove('show'));
-  learnOverlay.addEventListener('click', (e) => { if(e.target === learnOverlay) learnOverlay.classList.remove('show'); });
+  const openLearn = () => learnOverlay.classList.add('show');
+  const closeLearn = () => learnOverlay.classList.remove('show');
+
+  document.getElementById('learnBtn').addEventListener('click', openLearn);
+  const learnLandingBtn = document.getElementById('learnLandingBtn');
+  if(learnLandingBtn) learnLandingBtn.addEventListener('click', openLearn);
+  document.getElementById('closeLearnBtn').addEventListener('click', closeLearn);
+  learnOverlay.addEventListener('click', (e) => { if(e.target === learnOverlay) closeLearn(); });
+
+  const aiConceptOverlay = document.getElementById('aiConceptOverlay');
+  const openAiConcept = () => aiConceptOverlay.classList.add('show');
+  const closeAiConcept = () => aiConceptOverlay.classList.remove('show');
+
+  document.getElementById('aiConceptBtn').addEventListener('click', openAiConcept);
+  document.getElementById('aiConceptPlayBtn').addEventListener('click', openAiConcept);
+  document.getElementById('closeAiConceptBtn').addEventListener('click', closeAiConcept);
+  aiConceptOverlay.addEventListener('click', (e) => { if(e.target === aiConceptOverlay) closeAiConcept(); });
 
 })();
 </script>
