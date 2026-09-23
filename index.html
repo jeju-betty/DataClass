@@ -8,24 +8,28 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts Plus Jakarta Sans / Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        brand: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
+                        pastel: {
+                            rose: '#FDE2E4',
+                            pink: '#FFCAD4',
+                            lavender: '#E2ECE9',
+                            purple: '#E2D4F0',
+                            mint: '#D8F3DC',
+                            sky: '#D0F4DE',
+                            peach: '#FFE5EC',
+                            cream: '#FFF1E6',
+                            accent: '#8E7DBE'
                         }
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['"Plus Jakarta Sans"', '"Noto Sans KR"', 'sans-serif'],
                     }
                 }
             }
@@ -40,58 +44,61 @@
             background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(156, 163, 175, 0.4);
+            background: rgba(203, 213, 225, 0.6);
             border-radius: 9999px;
         }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(156, 163, 175, 0.6);
+        .pastel-glow {
+            box-shadow: 0 10px 30px -10px rgba(186, 178, 224, 0.3);
         }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full font-sans transition-colors duration-200 flex flex-col">
+<body class="bg-gradient-to-br from-purple-50/60 via-pink-50/40 to-blue-50/50 dark:from-slate-950 dark:via-purple-950/20 dark:to-slate-900 text-slate-700 dark:text-slate-200 min-h-full font-sans transition-colors duration-300 flex flex-col selection:bg-purple-200 dark:selection:bg-purple-900">
 
     <!-- Navigation Header -->
-    <header class="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors">
+    <header class="sticky top-0 z-30 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-purple-100/60 dark:border-slate-800 transition-colors">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
-                    <i class="fa-solid fa-brain text-xl"></i>
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-200 via-pink-200 to-indigo-200 dark:from-purple-900 dark:to-indigo-900 flex items-center justify-center text-purple-700 dark:text-purple-200 shadow-sm border border-white/60 dark:border-slate-700">
+                    <i class="fa-solid fa-sparkles text-lg"></i>
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg leading-tight tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                    <h1 class="font-bold text-base sm:text-lg leading-tight tracking-tight text-slate-800 dark:text-white flex items-center gap-2">
                         <span>DataClass</span>
-                        <span class="text-xs px-2 py-0.5 rounded-full bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-300 border border-brand-200 dark:border-brand-700 font-medium">Lab Hub</span>
+                        <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-purple-100/80 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 font-semibold border border-purple-200/50 dark:border-purple-800">
+                            ML Notebooks
+                        </span>
                     </h1>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">@jeju-betty / DataClass</p>
+                    <p class="text-xs text-slate-400 dark:text-slate-500">@jeju-betty / DataClass</p>
                 </div>
             </div>
 
             <!-- Controls Header Right -->
-            <div class="flex items-center space-x-2 sm:space-x-3">
+            <div class="flex items-center space-x-2 sm:space-x-2.5">
                 <!-- Sync Button -->
                 <button id="refreshBtn" onclick="loadRepositoryFiles()" title="GitHub에서 목록 새로고침"
-                        class="p-2.5 text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-all flex items-center gap-2 text-sm font-medium">
-                    <i id="refreshIcon" class="fa-solid fa-rotate-right"></i>
+                        class="px-3 py-2 text-xs font-semibold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/50 hover:bg-purple-100 dark:hover:bg-purple-900/60 rounded-2xl border border-purple-100 dark:border-purple-900/50 transition-all flex items-center gap-1.5 shadow-sm">
+                    <i id="refreshIcon" class="fa-solid fa-rotate-right text-xs"></i>
                     <span class="hidden md:inline">새로고침</span>
                 </button>
 
-                <!-- Repo Settings Button -->
+                <!-- Config Modal Button -->
                 <button onclick="toggleConfigModal(true)" title="리포지토리 설정 변경"
-                        class="p-2.5 text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-all">
-                    <i class="fa-solid fa-gear"></i>
+                        class="p-2 text-slate-600 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-300 bg-white dark:bg-slate-800 hover:bg-purple-50/50 rounded-2xl border border-slate-200/60 dark:border-slate-700 transition-all shadow-sm">
+                    <i class="fa-solid fa-gear text-sm"></i>
                 </button>
 
                 <!-- Dark Mode Toggle -->
                 <button id="themeToggleBtn" onclick="toggleDarkMode()" title="다크/라이트 모드"
-                        class="p-2.5 text-slate-600 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-all">
-                    <i id="themeIcon" class="fa-solid fa-moon"></i>
+                        class="p-2 text-slate-600 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 bg-white dark:bg-slate-800 hover:bg-amber-50/50 rounded-2xl border border-slate-200/60 dark:border-slate-700 transition-all shadow-sm">
+                    <i id="themeIcon" class="fa-solid fa-moon text-sm"></i>
                 </button>
 
                 <!-- GitHub Direct Link -->
                 <a id="githubRepoLink" href="https://github.com/jeju-betty/DataClass" target="_blank" rel="noopener noreferrer"
-                   class="px-3 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-slate-200 text-white dark:text-slate-900 rounded-xl text-sm font-medium transition-colors flex items-center gap-2 shadow-sm">
-                    <i class="fa-brands fa-github text-base"></i>
-                    <span class="hidden sm:inline">Repo</span>
+                   class="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900 rounded-2xl text-xs font-semibold transition-all flex items-center gap-2 shadow-sm">
+                    <i class="fa-brands fa-github text-sm"></i>
+                    <span class="hidden sm:inline">GitHub Repo</span>
                 </a>
             </div>
         </div>
@@ -100,206 +107,214 @@
     <!-- Main Content Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
-        <!-- Welcome Banner -->
-        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden border border-slate-800">
-            <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="relative z-10 max-w-3xl space-y-3">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-indigo-200 text-xs font-medium backdrop-blur-sm border border-white/10">
+        <!-- Soft Pastel Hero Banner -->
+        <div class="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-purple-100/80 via-pink-100/70 to-amber-100/60 dark:from-slate-900 dark:via-purple-950/40 dark:to-slate-900 border border-purple-200/50 dark:border-slate-800 shadow-sm overflow-hidden">
+            <!-- Background Decorative Blobs -->
+            <div class="absolute top-0 right-0 -mt-8 -mr-8 w-56 h-56 bg-gradient-to-br from-pink-200/60 to-purple-300/40 dark:from-purple-800/20 dark:to-pink-900/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-1/3 -mb-10 w-48 h-48 bg-emerald-100/60 dark:bg-emerald-900/10 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="relative z-10 max-w-2xl space-y-3">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/80 dark:bg-slate-800/80 text-purple-700 dark:text-purple-300 text-xs font-semibold backdrop-blur-md shadow-xs border border-purple-100 dark:border-slate-700">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span>실시간 자동 감지 활성화</span>
+                    <span>실시간 자동 감지 대시보드</span>
                 </div>
-                <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                    머신러닝 & 데이터 분석 실습 포트폴리오
+
+                <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800 dark:text-white leading-tight">
+                    머신러닝 & 데이터 분석 <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 dark:from-purple-400 dark:to-pink-400">실습 노트</span>
                 </h2>
-                <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
-                    깃허브 리포지토리에 추가되는 HTML 대시보드 및 결과물을 자동으로 감지하여 목록화합니다.
-                    원하는 모델이나 학습 노트를 클릭하여 바로 브라우저 상에서 확인하세요.
+
+                <p class="text-slate-600 dark:text-slate-300 text-xs sm:text-sm leading-relaxed">
+                    깃허브 리포지토리에 새 HTML 파일(결정트리, KNN 등)이 커밋되면 **자동으로 탐지하여** 목록에 반영합니다. 카드를 클릭하여 직접 결과물을 미리보세요.
                 </p>
-                
+
                 <!-- Quick Meta Pills -->
-                <div class="pt-2 flex flex-wrap gap-4 text-xs text-slate-300 border-t border-slate-800/80">
-                    <div class="flex items-center gap-1.5">
-                        <i class="fa-solid fa-code-commit text-brand-400"></i>
-                        <span>감지된 파일: <strong id="htmlCountBadge" class="text-white font-semibold">0개</strong></span>
+                <div class="pt-2 flex flex-wrap gap-3 text-xs text-slate-500 dark:text-slate-400 border-t border-purple-200/60 dark:border-slate-800/80">
+                    <div class="flex items-center gap-1.5 bg-white/60 dark:bg-slate-800/60 px-3 py-1 rounded-xl border border-purple-100/50 dark:border-slate-700">
+                        <i class="fa-solid fa-file-code text-purple-500"></i>
+                        <span>감지된 HTML: <strong id="htmlCountBadge" class="text-slate-800 dark:text-white font-bold">0개</strong></span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                        <i class="fa-solid fa-clock text-emerald-400"></i>
-                        <span>마지막 동기화: <span id="lastSyncTime" class="text-white">확인 중...</span></span>
+                    <div class="flex items-center gap-1.5 bg-white/60 dark:bg-slate-800/60 px-3 py-1 rounded-xl border border-purple-100/50 dark:border-slate-700">
+                        <i class="fa-solid fa-clock-rotate-left text-pink-500"></i>
+                        <span>동기화: <span id="lastSyncTime" class="text-slate-700 dark:text-slate-300 font-medium">확인 중...</span></span>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                        <i class="fa-solid fa-code-branch text-amber-400"></i>
-                        <span>브랜치: <span id="branchBadge" class="text-white">main</span></span>
+                    <div class="flex items-center gap-1.5 bg-white/60 dark:bg-slate-800/60 px-3 py-1 rounded-xl border border-purple-100/50 dark:border-slate-700">
+                        <i class="fa-solid fa-code-branch text-amber-500"></i>
+                        <span>브랜치: <span id="branchBadge" class="text-slate-700 dark:text-slate-300 font-medium">main</span></span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Filter & Search Toolbar -->
-        <div class="flex flex-col sm:flex-row gap-4 items-center justify-between bg-white dark:bg-slate-800/80 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/80 shadow-sm">
-            <!-- Search Bar -->
+        <!-- Search and Filter Toolbar -->
+        <div class="flex flex-col sm:flex-row gap-3 items-center justify-between bg-white/80 dark:bg-slate-800/80 p-3.5 sm:p-4 rounded-3xl border border-slate-200/70 dark:border-slate-700/80 shadow-sm backdrop-blur-md">
+            
+            <!-- Search Input -->
             <div class="relative w-full sm:w-80">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-purple-400 text-xs"></i>
                 <input type="text" id="searchInput" oninput="filterFiles()" placeholder="결정트리, knn 등 파일 검색..."
-                       class="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-900/60 border border-transparent focus:border-brand-500 rounded-xl text-sm focus:outline-none transition-all placeholder:text-slate-400">
+                       class="w-full pl-10 pr-4 py-2.5 bg-purple-50/50 dark:bg-slate-900/70 border border-purple-100 dark:border-slate-700 rounded-2xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-300 dark:focus:ring-purple-800 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500">
             </div>
 
             <div class="flex items-center justify-between w-full sm:w-auto gap-3">
                 <!-- Sorting dropdown -->
                 <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                    <i class="fa-solid fa-arrow-down-a-z"></i>
-                    <select id="sortSelect" onchange="filterFiles()" class="bg-slate-100 dark:bg-slate-900/60 border-none rounded-xl px-3 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-brand-500 outline-none">
+                    <i class="fa-solid fa-arrow-down-short-wide text-purple-500"></i>
+                    <select id="sortSelect" onchange="filterFiles()" 
+                            class="bg-purple-50/50 dark:bg-slate-900/70 border border-purple-100 dark:border-slate-700 rounded-2xl px-3 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-purple-300 cursor-pointer">
                         <option value="name-asc">이름순 (A-Z)</option>
                         <option value="name-desc">이름역순 (Z-A)</option>
                         <option value="size-desc">용량 큰순</option>
                     </select>
                 </div>
 
-                <!-- View Mode Buttons -->
-                <div class="flex bg-slate-100 dark:bg-slate-900/60 p-1 rounded-xl border border-slate-200/50 dark:border-slate-800">
-                    <button id="gridViewBtn" onclick="setViewMode('grid')" title="카드 그리드 뷰" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-slate-800 text-brand-600 dark:text-brand-400 shadow-sm transition-all">
-                        <i class="fa-solid fa-border-all mr-1"></i> 그리드
+                <!-- View Switcher -->
+                <div class="flex bg-purple-50/60 dark:bg-slate-900/80 p-1 rounded-2xl border border-purple-100 dark:border-slate-800">
+                    <button id="gridViewBtn" onclick="setViewMode('grid')" title="카드 그리드" 
+                            class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-purple-700 dark:text-purple-300 shadow-xs transition-all">
+                        <i class="fa-solid fa-grid-2 mr-1"></i> 그리드
                     </button>
-                    <button id="listViewBtn" onclick="setViewMode('list')" title="리스트 뷰" class="px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all">
+                    <button id="listViewBtn" onclick="setViewMode('list')" title="리스트 목록" 
+                            class="px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all">
                         <i class="fa-solid fa-list mr-1"></i> 목록
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Loading State Skeleton -->
-        <div id="loadingSkeleton" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 animate-pulse space-y-4">
+        <!-- Loading Skeleton -->
+        <div id="loadingSkeleton" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div class="bg-white/70 dark:bg-slate-800/50 rounded-3xl p-6 border border-slate-200/60 dark:border-slate-800 animate-pulse space-y-4">
                 <div class="flex items-center justify-between">
-                    <div class="w-10 h-10 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
-                    <div class="w-16 h-5 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                    <div class="w-12 h-12 bg-purple-100 dark:bg-slate-700 rounded-2xl"></div>
+                    <div class="w-16 h-5 bg-purple-100 dark:bg-slate-700 rounded-full"></div>
                 </div>
-                <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
-                <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2"></div>
+                <div class="h-5 bg-purple-100 dark:bg-slate-700 rounded-lg w-3/4"></div>
+                <div class="h-3 bg-purple-100 dark:bg-slate-700 rounded-lg w-1/2"></div>
                 <div class="pt-4 flex gap-2">
-                    <div class="h-9 bg-slate-200 dark:bg-slate-700 rounded-xl flex-1"></div>
-                    <div class="h-9 bg-slate-200 dark:bg-slate-700 rounded-xl w-10"></div>
+                    <div class="h-10 bg-purple-100 dark:bg-slate-700 rounded-2xl flex-1"></div>
+                    <div class="h-10 bg-purple-100 dark:bg-slate-700 rounded-2xl w-10"></div>
                 </div>
             </div>
-            <div class="bg-white dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 animate-pulse space-y-4 hidden sm:block">
+            <div class="bg-white/70 dark:bg-slate-800/50 rounded-3xl p-6 border border-slate-200/60 dark:border-slate-800 animate-pulse space-y-4 hidden sm:block">
                 <div class="flex items-center justify-between">
-                    <div class="w-10 h-10 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
-                    <div class="w-16 h-5 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                    <div class="w-12 h-12 bg-pink-100 dark:bg-slate-700 rounded-2xl"></div>
+                    <div class="w-16 h-5 bg-pink-100 dark:bg-slate-700 rounded-full"></div>
                 </div>
-                <div class="h-6 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
-                <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2"></div>
+                <div class="h-5 bg-pink-100 dark:bg-slate-700 rounded-lg w-3/4"></div>
+                <div class="h-3 bg-pink-100 dark:bg-slate-700 rounded-lg w-1/2"></div>
                 <div class="pt-4 flex gap-2">
-                    <div class="h-9 bg-slate-200 dark:bg-slate-700 rounded-xl flex-1"></div>
-                    <div class="h-9 bg-slate-200 dark:bg-slate-700 rounded-xl w-10"></div>
+                    <div class="h-10 bg-pink-100 dark:bg-slate-700 rounded-2xl flex-1"></div>
+                    <div class="h-10 bg-pink-100 dark:bg-slate-700 rounded-2xl w-10"></div>
                 </div>
             </div>
         </div>
 
         <!-- Error State Alert -->
-        <div id="errorBox" class="hidden bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-2xl p-6 text-amber-800 dark:text-amber-200 space-y-3">
+        <div id="errorBox" class="hidden bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/60 rounded-3xl p-6 text-rose-800 dark:text-rose-200 space-y-3 shadow-sm">
             <div class="flex items-center gap-3">
-                <i class="fa-solid fa-triangle-exclamation text-2xl text-amber-600 dark:text-amber-400"></i>
-                <h3 class="font-bold text-lg" id="errorTitle">목록을 불러올 수 없습니다.</h3>
+                <div class="w-10 h-10 rounded-2xl bg-rose-100 dark:bg-rose-900/50 flex items-center justify-center text-rose-600 dark:text-rose-300">
+                    <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-base" id="errorTitle">목록을 불러올 수 없습니다.</h3>
+                    <p id="errorMessage" class="text-xs text-rose-600 dark:text-rose-300 mt-0.5">
+                        GitHub API 연동 중 오류가 발생했습니다.
+                    </p>
+                </div>
             </div>
-            <p id="errorMessage" class="text-sm text-amber-700 dark:text-amber-300">
-                GitHub API 호출에 실패했거나 리포지토리 정보를 찾을 수 없습니다.
-            </p>
-            <div class="pt-2 flex items-center gap-3">
-                <button onclick="loadRepositoryFiles()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-xl transition-colors">
+            <div class="pt-2 flex items-center gap-2">
+                <button onclick="loadRepositoryFiles()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-2xl transition-colors shadow-sm">
                     다시 시도
                 </button>
-                <button onclick="toggleConfigModal(true)" class="px-4 py-2 bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 text-amber-900 dark:text-amber-100 text-xs font-semibold rounded-xl transition-colors">
-                    리포지토리 설정 확인
+                <button onclick="toggleConfigModal(true)" class="px-4 py-2 bg-rose-100 dark:bg-rose-900/50 hover:bg-rose-200 text-rose-900 dark:text-rose-100 text-xs font-semibold rounded-2xl transition-colors">
+                    설정 확인
                 </button>
             </div>
         </div>
 
         <!-- Empty State -->
-        <div id="emptyBox" class="hidden bg-white dark:bg-slate-800/50 border border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-12 text-center space-y-4">
-            <div class="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-700/50 text-slate-400 mx-auto flex items-center justify-center text-2xl">
+        <div id="emptyBox" class="hidden bg-white/60 dark:bg-slate-800/40 border border-dashed border-purple-200 dark:border-slate-700 rounded-3xl p-12 text-center space-y-3">
+            <div class="w-16 h-16 rounded-3xl bg-purple-50 dark:bg-slate-700/50 text-purple-400 mx-auto flex items-center justify-center text-2xl">
                 <i class="fa-solid fa-folder-open"></i>
             </div>
-            <div class="space-y-1">
-                <h3 class="text-base font-semibold text-slate-800 dark:text-slate-200">감지된 HTML 파일이 없습니다.</h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400">리포지토리에 .html 확장자를 가진 새 파일을 커밋해 보세요!</p>
-            </div>
+            <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200">감지된 HTML 파일이 없습니다.</h3>
+            <p class="text-xs text-slate-400">리포지토리에 새로운 .html 노트를 올려보세요!</p>
         </div>
 
-        <!-- Dynamic Files Grid View Container -->
-        <div id="filesContainerGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <!-- Dynamic Files Grid Container -->
+        <div id="filesContainerGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
 
-        <!-- Dynamic Files List View Container -->
-        <div id="filesContainerList" class="hidden bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 rounded-2xl divide-y divide-slate-200 dark:divide-slate-700 overflow-hidden shadow-sm"></div>
+        <!-- Dynamic Files List Container -->
+        <div id="filesContainerList" class="hidden bg-white/80 dark:bg-slate-800/80 border border-purple-100 dark:border-slate-700/80 rounded-3xl divide-y divide-purple-100/60 dark:divide-slate-700/60 overflow-hidden shadow-sm backdrop-blur-md"></div>
 
     </main>
 
     <!-- Repository Config Modal -->
-    <div id="configModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 p-6 space-y-5 transform scale-95 transition-transform duration-200" id="configModalCard">
-            <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
-                <h3 class="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-sliders text-brand-500"></i>
+    <div id="configModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-200">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl border border-purple-100 dark:border-slate-800 p-6 space-y-5 transform scale-95 transition-transform duration-200" id="configModalCard">
+            <div class="flex items-center justify-between border-b border-purple-50 dark:border-slate-800 pb-3">
+                <h3 class="font-bold text-base text-slate-800 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-purple-500"></i>
                     <span>GitHub 리포지토리 설정</span>
                 </h3>
                 <button onclick="toggleConfigModal(false)" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
-                    <i class="fa-solid fa-xmark text-lg"></i>
+                    <i class="fa-solid fa-xmark text-base"></i>
                 </button>
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-3.5 text-xs">
                 <div>
-                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">GitHub Username / Organization</label>
-                    <input type="text" id="cfgUser" value="jeju-betty" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">GitHub 사용자/조직명 (Owner)</label>
+                    <input type="text" id="cfgUser" value="jeju-betty" class="w-full px-3.5 py-2.5 bg-purple-50/50 dark:bg-slate-800 border border-purple-100 dark:border-slate-700 rounded-2xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-300">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Repository Name</label>
-                    <input type="text" id="cfgRepo" value="DataClass" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">리포지토리 이름 (Repo)</label>
+                    <input type="text" id="cfgRepo" value="DataClass" class="w-full px-3.5 py-2.5 bg-purple-50/50 dark:bg-slate-800 border border-purple-100 dark:border-slate-700 rounded-2xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-300">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Branch Name</label>
-                    <input type="text" id="cfgBranch" value="main" class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-brand-500">
+                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">브랜치 이름 (Branch)</label>
+                    <input type="text" id="cfgBranch" value="main" class="w-full px-3.5 py-2.5 bg-purple-50/50 dark:bg-slate-800 border border-purple-100 dark:border-slate-700 rounded-2xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-300">
                 </div>
             </div>
 
-            <div class="pt-2 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-700">
-                <button onclick="toggleConfigModal(false)" class="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors">취소</button>
-                <button onclick="saveConfigAndReload()" class="px-4 py-2 text-xs font-medium bg-brand-600 hover:bg-brand-700 text-white rounded-xl shadow-md shadow-brand-500/20 transition-colors">저장 및 동기화</button>
+            <div class="pt-2 flex justify-end gap-2 border-t border-purple-50 dark:border-slate-800">
+                <button onclick="toggleConfigModal(false)" class="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition-colors">취소</button>
+                <button onclick="saveConfigAndReload()" class="px-4 py-2 text-xs font-semibold bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white rounded-2xl shadow-sm transition-all">저장 및 동기화</button>
             </div>
         </div>
     </div>
 
     <!-- Live Preview Modal (Iframe) -->
-    <div id="previewModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex flex-col hidden opacity-0 transition-opacity duration-300">
-        <!-- Preview Header Bar -->
-        <div class="h-14 bg-slate-900 border-b border-slate-800 px-4 sm:px-6 flex items-center justify-between text-white">
+    <div id="previewModal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-lg flex flex-col hidden opacity-0 transition-opacity duration-300">
+        <!-- Modal Header -->
+        <div class="h-14 bg-white/90 dark:bg-slate-900/90 border-b border-purple-100 dark:border-slate-800 px-4 sm:px-6 flex items-center justify-between">
             <div class="flex items-center space-x-3 overflow-hidden">
-                <div class="w-8 h-8 rounded-lg bg-brand-600/30 text-brand-400 border border-brand-500/30 flex items-center justify-center shrink-0">
-                    <i class="fa-solid fa-file-code"></i>
+                <div class="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-300 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-laptop-code text-xs"></i>
                 </div>
                 <div class="truncate">
-                    <h3 id="previewTitle" class="font-bold text-sm truncate">미리보기</h3>
-                    <p id="previewSub" class="text-xs text-slate-400 truncate">경로: -</p>
+                    <h3 id="previewTitle" class="font-bold text-xs sm:text-sm text-slate-800 dark:text-white truncate">미리보기</h3>
+                    <p id="previewSub" class="text-[11px] text-slate-400 truncate">파일명: -</p>
                 </div>
             </div>
 
             <div class="flex items-center space-x-2">
-                <!-- Open in new tab -->
                 <a id="previewExternalLink" href="#" target="_blank" rel="noopener noreferrer"
-                   class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                   class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-purple-700 dark:text-purple-300 rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
                     <span class="hidden sm:inline">새 탭에서 열기</span>
                 </a>
-                <!-- Close Button -->
-                <button onclick="closePreviewModal()" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors">
+                <button onclick="closePreviewModal()" class="p-2 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-xl transition-colors">
                     <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
         </div>
 
-        <!-- Iframe Container -->
-        <div class="flex-grow bg-slate-900 relative">
-            <div id="iframeLoader" class="absolute inset-0 flex items-center justify-center bg-slate-900 text-slate-400 space-x-3">
-                <i class="fa-solid fa-spinner fa-spin text-2xl text-brand-500"></i>
-                <span class="text-sm">페이지 로딩 중...</span>
+        <!-- Modal Iframe Container -->
+        <div class="flex-grow bg-slate-100 dark:bg-slate-950 relative">
+            <div id="iframeLoader" class="absolute inset-0 flex items-center justify-center bg-slate-50 dark:bg-slate-900 text-purple-500 space-x-2">
+                <i class="fa-solid fa-spinner fa-spin text-xl"></i>
+                <span class="text-xs font-semibold">노트 페이지 로딩 중...</span>
             </div>
             <iframe id="previewIframe" class="w-full h-full border-none relative z-10" onload="document.getElementById('iframeLoader').classList.add('hidden')"></iframe>
         </div>
@@ -307,7 +322,6 @@
 
     <!-- Script Logic -->
     <script>
-        // Global Repo State
         let repoConfig = {
             user: 'jeju-betty',
             repo: 'DataClass',
@@ -317,27 +331,81 @@
         let rawFileList = [];
         let viewMode = 'grid';
 
-        // Custom tags and icons based on file name pattern
+        // Pastel Category Schemes with soft colors and matched icons
         const categoryPatterns = [
-            { keywords: ['tree', '결정트리', 'decision'], icon: 'fa-diagram-project', color: 'emerald', label: '의사결정나무' },
-            { keywords: ['knn', 'neighbor'], icon: 'fa-vector-square', color: 'indigo', label: 'KNN 알고리즘' },
-            { keywords: ['svm', 'vector'], icon: 'fa-chart-scatter', color: 'purple', label: 'SVM' },
-            { keywords: ['regression', '회귀', 'linear'], icon: 'fa-chart-line', color: 'blue', label: '회귀분석' },
-            { keywords: ['cluster', 'kmeans', '군집'], icon: 'fa-circle-nodes', color: 'amber', label: '군집화' },
-            { keywords: ['nn', 'deep', 'pytorch', 'tensorflow', 'neural'], icon: 'fa-network-wired', color: 'rose', label: '딥러닝' },
-            { keywords: ['eda', 'data', 'pandas', 'visual'], icon: 'fa-chart-pie', color: 'teal', label: '데이터 분석' }
+            { 
+                keywords: ['tree', '결정트리', 'decision'], 
+                icon: 'fa-diagram-project', 
+                bg: 'bg-emerald-50 dark:bg-emerald-950/40', 
+                badgeBg: 'bg-emerald-100/80 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300',
+                iconColor: 'text-emerald-600 dark:text-emerald-300',
+                borderHover: 'hover:border-emerald-300 dark:hover:border-emerald-700',
+                label: '의사결정나무' 
+            },
+            { 
+                keywords: ['knn', 'neighbor'], 
+                icon: 'fa-chart-scatter', 
+                bg: 'bg-purple-50 dark:bg-purple-950/40', 
+                badgeBg: 'bg-purple-100/80 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300',
+                iconColor: 'text-purple-600 dark:text-purple-300',
+                borderHover: 'hover:border-purple-300 dark:hover:border-purple-700',
+                label: 'KNN 알고리즘' 
+            },
+            { 
+                keywords: ['svm', 'vector'], 
+                icon: 'fa-vector-square', 
+                bg: 'bg-indigo-50 dark:bg-indigo-950/40', 
+                badgeBg: 'bg-indigo-100/80 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300',
+                iconColor: 'text-indigo-600 dark:text-indigo-300',
+                borderHover: 'hover:border-indigo-300 dark:hover:border-indigo-700',
+                label: 'SVM' 
+            },
+            { 
+                keywords: ['regression', '회귀', 'linear'], 
+                icon: 'fa-chart-line', 
+                bg: 'bg-sky-50 dark:bg-sky-950/40', 
+                badgeBg: 'bg-sky-100/80 text-sky-700 dark:bg-sky-900/60 dark:text-sky-300',
+                iconColor: 'text-sky-600 dark:text-sky-300',
+                borderHover: 'hover:border-sky-300 dark:hover:border-sky-700',
+                label: '회귀 분석' 
+            },
+            { 
+                keywords: ['cluster', 'kmeans', '군집'], 
+                icon: 'fa-circle-nodes', 
+                bg: 'bg-amber-50 dark:bg-amber-950/40', 
+                badgeBg: 'bg-amber-100/80 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300',
+                iconColor: 'text-amber-600 dark:text-amber-300',
+                borderHover: 'hover:border-amber-300 dark:hover:border-amber-700',
+                label: '군집화' 
+            },
+            { 
+                keywords: ['nn', 'deep', 'pytorch', 'tensorflow', 'neural'], 
+                icon: 'fa-network-wired', 
+                bg: 'bg-rose-50 dark:bg-rose-950/40', 
+                badgeBg: 'bg-rose-100/80 text-rose-700 dark:bg-rose-900/60 dark:text-rose-300',
+                iconColor: 'text-rose-600 dark:text-rose-300',
+                borderHover: 'hover:border-rose-300 dark:hover:border-rose-700',
+                label: '딥러닝' 
+            },
+            { 
+                keywords: ['eda', 'data', 'pandas', 'visual'], 
+                icon: 'fa-chart-pie', 
+                bg: 'bg-pink-50 dark:bg-pink-950/40', 
+                badgeBg: 'bg-pink-100/80 text-pink-700 dark:bg-pink-900/60 dark:text-pink-300',
+                iconColor: 'text-pink-600 dark:text-pink-300',
+                borderHover: 'hover:border-pink-300 dark:hover:border-pink-700',
+                label: '데이터 분석' 
+            }
         ];
 
-        // Initialize on load
         window.addEventListener('DOMContentLoaded', () => {
             loadSavedConfig();
             initTheme();
             loadRepositoryFiles();
         });
 
-        // Load config from LocalStorage if present
         function loadSavedConfig() {
-            const saved = localStorage.getItem('dataclass_repo_cfg');
+            const saved = localStorage.getItem('dataclass_pastel_cfg');
             if (saved) {
                 try {
                     repoConfig = JSON.parse(saved);
@@ -354,19 +422,17 @@
             document.getElementById('branchBadge').textContent = repoConfig.branch;
         }
 
-        // Save & Sync Config
         function saveConfigAndReload() {
             repoConfig.user = document.getElementById('cfgUser').value.trim() || 'jeju-betty';
             repoConfig.repo = document.getElementById('cfgRepo').value.trim() || 'DataClass';
             repoConfig.branch = document.getElementById('cfgBranch').value.trim() || 'main';
 
-            localStorage.setItem('dataclass_repo_cfg', JSON.stringify(repoConfig));
+            localStorage.setItem('dataclass_pastel_cfg', JSON.stringify(repoConfig));
             updateHeaderRepoInfo();
             toggleConfigModal(false);
             loadRepositoryFiles();
         }
 
-        // Fetch Repository Contents from GitHub API
         async function loadRepositoryFiles() {
             const refreshIcon = document.getElementById('refreshIcon');
             refreshIcon.classList.add('fa-spin');
@@ -385,31 +451,30 @@
                     if (response.status === 404) {
                         throw new Error(`리포지토리 '${repoConfig.user}/${repoConfig.repo}'를 찾을 수 없습니다.`);
                     } else if (response.status === 403) {
-                        throw new Error(`GitHub API 요청 한도가 초과되었습니다. 잠시 후 다시 시도하세요.`);
+                        throw new Error(`GitHub API 호출 한도가 초과되었습니다. 잠시 후 다시 시도하세요.`);
                     } else {
-                        throw new Error(`HTTP 에러: ${response.status}`);
+                        throw new Error(`HTTP 요청 에러: ${response.status}`);
                     }
                 }
 
                 const data = await response.json();
                 
-                // Filter only HTML files, excluding index.html
+                // Exclude index.html itself, only list other .html files
                 rawFileList = data.filter(item => {
                     const isHtml = item.name.toLowerCase().endsWith('.html');
                     const isIndex = item.name.toLowerCase() === 'index.html';
                     return isHtml && !isIndex;
                 });
 
-                // Update metadata badge
                 document.getElementById('htmlCountBadge').textContent = `${rawFileList.length}개`;
-                document.getElementById('lastSyncTime').textContent = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                document.getElementById('lastSyncTime').textContent = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
 
                 renderFiles();
 
             } catch (err) {
-                console.error('Error fetching repo contents:', err);
-                document.getElementById('errorTitle').textContent = '데이터 동기화 오류';
-                document.getElementById('errorMessage').textContent = err.message || 'GitHub API 연결 중 문제가 발생하였습니다.';
+                console.error('API Error:', err);
+                document.getElementById('errorTitle').textContent = '동기화 실패';
+                document.getElementById('errorMessage').textContent = err.message || 'GitHub 데이터를 연동할 수 없습니다.';
                 document.getElementById('errorBox').classList.remove('hidden');
             } finally {
                 refreshIcon.classList.remove('fa-spin');
@@ -425,13 +490,11 @@
             const searchVal = document.getElementById('searchInput').value.trim().toLowerCase();
             const sortVal = document.getElementById('sortSelect').value;
 
-            // Filter search
             let filtered = rawFileList.filter(file => {
                 const prettyName = getPrettyName(file.name).toLowerCase();
                 return file.name.toLowerCase().includes(searchVal) || prettyName.includes(searchVal);
             });
 
-            // Sort
             filtered.sort((a, b) => {
                 if (sortVal === 'name-asc') return a.name.localeCompare(b.name);
                 if (sortVal === 'name-desc') return b.name.localeCompare(a.name);
@@ -455,19 +518,12 @@
             }
         }
 
-        // Helper to formatting filename -> Clean Display Name
         function getPrettyName(filename) {
-            // Remove extension
             let base = filename.replace(/\.html$/i, '');
-            
-            // Format camelCase or snakeCase into spaced words
-            base = base.replace(/([a-z])([A-Z])/g, '$1 $2')
-                       .replace(/[-_]/g, ' ');
-            
+            base = base.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/[-_]/g, ' ');
             return base;
         }
 
-        // Detect topic icon/meta
         function getMetaInfo(filename) {
             const lower = filename.toLowerCase();
             for (let p of categoryPatterns) {
@@ -475,10 +531,16 @@
                     return p;
                 }
             }
-            return { icon: 'fa-file-code', color: 'indigo', label: '실습 노트' };
+            return { 
+                icon: 'fa-file-code', 
+                bg: 'bg-purple-50 dark:bg-purple-950/40', 
+                badgeBg: 'bg-purple-100/80 text-purple-700 dark:bg-purple-900/60 dark:text-purple-300',
+                iconColor: 'text-purple-600 dark:text-purple-300',
+                borderHover: 'hover:border-purple-300 dark:hover:border-purple-700',
+                label: '실습 노트' 
+            };
         }
 
-        // Convert byte size to readable string
         function formatBytes(bytes) {
             if (!bytes) return '0 B';
             const k = 1024;
@@ -487,7 +549,6 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
         }
 
-        // Render Grid Cards
         function renderGridView(files) {
             const grid = document.getElementById('filesContainerGrid');
             grid.innerHTML = '';
@@ -497,45 +558,43 @@
             files.forEach(file => {
                 const prettyTitle = getPrettyName(file.name);
                 const meta = getMetaInfo(file.name);
-                const rawUrl = file.download_url || `./${file.name}`;
-                // Direct github pages or local target path
                 const pageUrl = `./${file.name}`;
 
                 const card = document.createElement('div');
-                card.className = 'group bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-2xl p-5 hover:border-brand-500/50 dark:hover:border-brand-500/50 transition-all duration-200 hover:shadow-xl hover:shadow-brand-500/5 flex flex-col justify-between';
+                card.className = `group bg-white/80 dark:bg-slate-800/80 border border-purple-100/80 dark:border-slate-700/80 rounded-3xl p-5 ${meta.borderHover} transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-200/40 dark:hover:shadow-none backdrop-blur-sm flex flex-col justify-between`;
 
                 card.innerHTML = `
-                    <div class="space-y-4">
-                        <div class="flex items-start justify-between gap-3">
-                            <div class="w-11 h-11 rounded-xl bg-${meta.color}-500/10 text-${meta.color}-600 dark:text-${meta.color}-400 flex items-center justify-center text-lg font-semibold shrink-0 group-hover:scale-105 transition-transform">
+                    <div class="space-y-3.5">
+                        <div class="flex items-center justify-between">
+                            <div class="w-11 h-11 rounded-2xl ${meta.bg} ${meta.iconColor} flex items-center justify-center text-lg font-bold group-hover:scale-110 transition-transform">
                                 <i class="fa-solid ${meta.icon}"></i>
                             </div>
-                            <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300">
+                            <span class="px-3 py-1 rounded-full text-[11px] font-semibold ${meta.badgeBg}">
                                 ${meta.label}
                             </span>
                         </div>
 
                         <div>
-                            <h3 class="font-bold text-slate-900 dark:text-white text-base leading-snug group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+                            <h3 class="font-bold text-slate-800 dark:text-white text-base group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors">
                                 ${prettyTitle}
                             </h3>
-                            <p class="text-xs text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-2">
-                                <span><i class="fa-solid fa-file text-slate-400 mr-1"></i>${file.name}</span>
+                            <div class="text-[11px] text-slate-400 dark:text-slate-500 mt-1 flex items-center gap-2">
+                                <span class="font-mono">${file.name}</span>
                                 <span>•</span>
                                 <span>${formatBytes(file.size)}</span>
-                            </p>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="pt-5 mt-4 border-t border-slate-100 dark:border-slate-700/60 flex items-center gap-2">
+                    <div class="pt-4 mt-4 border-t border-purple-50 dark:border-slate-700/60 flex items-center gap-2">
                         <button onclick="openPreviewModal('${pageUrl}', '${prettyTitle}', '${file.name}')"
-                                class="flex-1 py-2 px-3 bg-brand-50 hover:bg-brand-100 dark:bg-brand-950/40 dark:hover:bg-brand-900/60 text-brand-600 dark:text-brand-300 text-xs font-semibold rounded-xl transition-colors flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-eye"></i>
+                                class="flex-1 py-2 px-3 bg-purple-50 hover:bg-purple-100 dark:bg-purple-950/50 dark:hover:bg-purple-900/60 text-purple-700 dark:text-purple-300 text-xs font-semibold rounded-2xl transition-all flex items-center justify-center gap-1.5 shadow-xs">
+                            <i class="fa-solid fa-eye text-xs"></i>
                             <span>미리보기</span>
                         </button>
                         <a href="${pageUrl}" target="_blank"
-                           class="py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl transition-colors flex items-center justify-center"
-                           title="새 탭에서 바로 열기">
+                           class="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-200 text-xs font-semibold rounded-2xl transition-colors flex items-center justify-center"
+                           title="새 탭에서 열기">
                             <i class="fa-solid fa-arrow-up-right-from-square"></i>
                         </a>
                     </div>
@@ -544,7 +603,6 @@
             });
         }
 
-        // Render List View
         function renderListView(files) {
             const list = document.getElementById('filesContainerList');
             list.innerHTML = '';
@@ -557,17 +615,17 @@
                 const pageUrl = `./${file.name}`;
 
                 const item = document.createElement('div');
-                item.className = 'p-4 hover:bg-slate-50 dark:hover:bg-slate-700/40 transition-colors flex items-center justify-between gap-4';
+                item.className = 'p-4 hover:bg-purple-50/40 dark:hover:bg-slate-700/40 transition-colors flex items-center justify-between gap-4';
 
                 item.innerHTML = `
-                    <div class="flex items-center space-x-3 min-w-0">
-                        <div class="w-9 h-9 rounded-xl bg-${meta.color}-500/10 text-${meta.color}-600 dark:text-${meta.color}-400 flex items-center justify-center shrink-0">
+                    <div class="flex items-center space-x-3.5 min-w-0">
+                        <div class="w-10 h-10 rounded-2xl ${meta.bg} ${meta.iconColor} flex items-center justify-center shrink-0 text-sm font-bold">
                             <i class="fa-solid ${meta.icon}"></i>
                         </div>
                         <div class="truncate">
-                            <h4 class="font-semibold text-sm text-slate-800 dark:text-slate-100 truncate">${prettyTitle}</h4>
-                            <p class="text-xs text-slate-400 flex items-center gap-2">
-                                <span class="font-mono text-slate-500">${file.name}</span>
+                            <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-slate-100 truncate">${prettyTitle}</h4>
+                            <p class="text-[11px] text-slate-400 flex items-center gap-2 mt-0.5">
+                                <span class="font-mono text-slate-400">${file.name}</span>
                                 <span>•</span>
                                 <span>${formatBytes(file.size)}</span>
                             </p>
@@ -576,12 +634,12 @@
 
                     <div class="flex items-center space-x-2 shrink-0">
                         <button onclick="openPreviewModal('${pageUrl}', '${prettyTitle}', '${file.name}')"
-                                class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-medium rounded-lg transition-colors flex items-center gap-1">
+                                class="px-3 py-1.5 bg-purple-50 hover:bg-purple-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-purple-700 dark:text-purple-300 text-xs font-semibold rounded-xl transition-colors flex items-center gap-1">
                             <i class="fa-solid fa-eye text-xs"></i>
-                            <span class="hidden sm:inline">보기</span>
+                            <span class="hidden sm:inline">미리보기</span>
                         </button>
                         <a href="${pageUrl}" target="_blank"
-                           class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                           class="p-1.5 text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 transition-colors"
                            title="새 탭에서 열기">
                             <i class="fa-solid fa-arrow-up-right-from-square"></i>
                         </a>
@@ -591,39 +649,35 @@
             });
         }
 
-        // View mode switcher
         function setViewMode(mode) {
             viewMode = mode;
             const gridBtn = document.getElementById('gridViewBtn');
             const listBtn = document.getElementById('listViewBtn');
 
             if (mode === 'grid') {
-                gridBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-slate-800 text-brand-600 dark:text-brand-400 shadow-sm transition-all';
-                listBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all';
+                gridBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-purple-700 dark:text-purple-300 shadow-xs transition-all';
+                listBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all';
             } else {
-                listBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-slate-800 text-brand-600 dark:text-brand-400 shadow-sm transition-all';
-                gridBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all';
+                listBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-800 text-purple-700 dark:text-purple-300 shadow-xs transition-all';
+                gridBtn.className = 'px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all';
             }
             renderFiles();
         }
 
-        // Preview Modal Controls
         function openPreviewModal(url, title, filename) {
             const modal = document.getElementById('previewModal');
             const iframe = document.getElementById('previewIframe');
             const loader = document.getElementById('iframeLoader');
 
             document.getElementById('previewTitle').textContent = title;
-            document.getElementById('previewSub').textContent = `파일: ${filename}`;
+            document.getElementById('previewSub').textContent = `파일명: ${filename}`;
             document.getElementById('previewExternalLink').href = url;
 
             loader.classList.remove('hidden');
             iframe.src = url;
 
             modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-            }, 10);
+            setTimeout(() => { modal.classList.remove('opacity-0'); }, 10);
         }
 
         function closePreviewModal() {
@@ -637,7 +691,6 @@
             }, 300);
         }
 
-        // Configuration Modal
         function toggleConfigModal(show) {
             const modal = document.getElementById('configModal');
             const card = document.getElementById('configModalCard');
@@ -651,13 +704,10 @@
             } else {
                 modal.classList.add('opacity-0');
                 card.classList.add('scale-95');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                }, 200);
+                setTimeout(() => { modal.classList.add('hidden'); }, 200);
             }
         }
 
-        // Dark Mode Logic
         function initTheme() {
             if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
