@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>결정트리 체험</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky-top: #BEE6FF;
+    --sky-bottom: #E9F8FF;
+    --grass: #BFE3A0;
+    --grass-dark: #9BCB7C;
+    --trunk: #9A6B45;
+    --branch: #8D5A3B;
+    --leaf-dark: #2E6B49;
+    --leaf: #4C9A6B;
+    --sun: #FFC94D;
+    --card: #FFFDF6;
+    --card-border: #E8DCC4;
+    --ink: #3B3226;
+    --coral: #FF7A6B;
+    --shadow: rgba(60, 40, 10, 0.18);
+    font-family: 'Gowun Dodum', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  *{ box-sizing: border-box; }
+  html,body{
+    margin:0; padding:0; min-height:100vh;
+    background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 55%, var(--grass) 56%, var(--grass-dark) 100%);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+  h1,h2,h3, .headline{ font-family: 'Gaegu', cursive; }
+
+  /* ---------- clouds decoration ---------- */
+  .cloud{
+    position:absolute; background:#fff; border-radius:50px;
+    opacity:0.85; filter: blur(0.3px);
+  }
+
+  /* ---------- Landing screen ---------- */
+  #landing{
+    position:relative;
+    min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding: 24px;
+  }
+  .landing-card{
+    position:relative; z-index:2;
+    background: var(--card);
+    border: 3px solid var(--card-border);
+    border-radius: 28px;
+    max-width: 620px;
+    width:100%;
+    padding: 40px 36px 34px;
+    box-shadow: 0 18px 0 -8px var(--shadow), 0 10px 30px var(--shadow);
+    text-align:center;
+  }
+  .landing-card h1{
+    font-size: clamp(2rem, 6vw, 2.8rem);
+    margin: 0 0 6px;
+    color: var(--leaf-dark);
+    line-height:1.15;
+  }
+  .landing-card .sub{
+    font-size: 1.05rem;
+    color: #6b5f4d;
+    margin: 0 0 26px;
+  }
+  .badge-row{
+    display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom: 28px;
+  }
+  .badge{
+    background:#fff6e0; border:2px solid #FFE1A0; color:#8a6a1f;
+    font-size:0.85rem; padding: 6px 14px; border-radius: 999px;
+  }
+  .pick-title{ font-size:1.2rem; margin: 0 0 16px; color: var(--ink); }
+  .dataset-row{
+    display:flex; gap:18px; justify-content:center; flex-wrap:wrap;
+  }
+  .dataset-btn{
+    cursor:pointer; border: 3px solid transparent;
+    background: #fff; border-radius: 22px; padding: 20px 26px;
+    width: 190px;
+    box-shadow: 0 8px 0 -3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.08);
+    transition: transform .15s ease, border-color .15s ease;
+    font-family: inherit;
+  }
+  .dataset-btn:hover{ transform: translateY(-4px); border-color: var(--sun); }
+  .dataset-btn:active{ transform: translateY(0px); }
+  .dataset-emoji{ font-size: 2.6rem; display:block; margin-bottom:8px; }
+  .dataset-name{ font-family:'Gaegu',cursive; font-size:1.3rem; color: var(--leaf-dark); }
+  .dataset-desc{ font-size:0.82rem; color:#8a8071; margin-top:4px; }
+
+  /* ---------- Play screen ---------- */
+  #play{ display:none; min-height:100vh; flex-direction:column; }
+  header.topbar{
+    position: sticky; top:0; z-index: 10;
+    display:flex; align-items:center; justify-content:space-between;
+    gap: 12px; flex-wrap: wrap;
+    padding: 14px 20px;
+    background: rgba(255,253,246,0.92);
+    backdrop-filter: blur(4px);
+    border-bottom: 3px solid var(--card-border);
+  }
+  .topbar-title{ display:flex; align-items:center; gap:10px; }
+  .topbar-title .emoji{ font-size:1.6rem; }
+  .topbar-title h2{ margin:0; font-size:1.3rem; color: var(--leaf-dark); }
+  .topbar-title .count{ font-size:0.8rem; color:#8a8071; }
+  .topbar-buttons{ display:flex; gap:8px; }
+  .pill-btn{
+    cursor:pointer; border:none; border-radius:999px; padding:9px 16px;
+    font-family:'Gowun Dodum',sans-serif; font-size:0.85rem; font-weight:600;
+    background:#F1EADA; color:#6b5f4d;
+    transition: background .15s;
+  }
+  .pill-btn:hover{ background:#e6dcc4; }
+  .pill-btn.primary{ background: var(--leaf); color:#fff; }
+  .pill-btn.primary:hover{ background: var(--leaf-dark); }
+
+  .hint-bar{
+    text-align:center; font-size:0.85rem; color:#5c6b4a;
+    padding: 8px 12px; background: #F3FBE9;
+    border-bottom: 2px dashed #cfe6b3;
+  }
+
+  .tree-scroll{
+    flex:1; overflow:auto; padding: 40px 24px 80px;
+  }
+
+  /* classic CSS org-chart tree */
+  ul.tree, ul.tree ul{
+    list-style:none; margin:0; padding:0; position:relative;
+    display:table; margin: 0 auto;
+  }
+  ul.tree ul{ width:100%; }
+  ul.tree li{
+    display:table-cell; text-align:center;
+    padding: 40px 14px 0; vertical-align:top; position:relative;
+  }
+  ul.tree li::before{
+    content:""; position:absolute; top:0; left:0; right:0;
+    border-top: 3px solid var(--branch);
+  }
+  ul.tree li:first-child::before{ left:50%; }
+  ul.tree li:last-child::before{ right:50%; }
+  ul.tree li:only-child::before{ display:none; }
+  ul.tree > li::before{ display:none; }
+  ul.tree ul::before{
+    content:""; position:absolute; top:-40px; left:50%;
+    height:40px; border-left: 3px solid var(--branch);
+  }
+  ul.tree li > .branch-label{
+    position:absolute; top:-34px; left:50%; transform:translateX(-50%);
+    background: var(--sun); color:#5c4400; font-size:0.72rem; font-weight:700;
+    padding: 2px 10px; border-radius: 999px; white-space:nowrap;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  }
+
+  .node-card{
+    display:inline-block; min-width: 150px; max-width: 230px;
+    background: var(--card); border: 3px solid var(--card-border);
+    border-radius: 20px; padding: 14px 16px 16px;
+    box-shadow: 0 6px 0 -2px var(--shadow), 0 4px 10px rgba(0,0,0,0.08);
+    animation: pop-in .35s ease;
+  }
+  @keyframes pop-in{
+    from{ opacity:0; transform: scale(0.75) translateY(-8px); }
+    to{ opacity:1; transform: scale(1) translateY(0); }
+  }
+  .item-row{
+    display:flex; flex-wrap:wrap; gap:5px; justify-content:center; margin-bottom:10px;
+  }
+  .item-icon{ font-size:1.5rem; line-height:1; }
+  .item-icon.solo{ font-size:2.6rem; }
+  .node-question{
+    font-size:0.85rem; font-weight:700; color: var(--leaf-dark);
+    margin: 2px 0 4px;
+  }
+  .ask-label{
+    font-size:0.78rem; color:#8a8071; margin-bottom:8px;
+  }
+  .q-btn-list{ display:flex; flex-direction:column; gap:7px; }
+  .q-btn{
+    cursor:pointer; border:none; border-radius:14px; padding: 9px 10px;
+    font-family:'Gowun Dodum',sans-serif; font-size:0.82rem; color:#fff;
+    font-weight:600; text-align:left;
+    box-shadow: 0 3px 0 -1px rgba(0,0,0,0.15);
+    transition: transform .1s ease, filter .1s ease;
+  }
+  .q-btn:hover{ filter: brightness(1.07); transform: translateY(-1px); }
+  .q-btn:active{ transform: translateY(1px); }
+
+  .leaf-card{
+    background: linear-gradient(180deg,#FFF8E6,#FFF0CF);
+    border-color:#F3D98B;
+  }
+  .leaf-star{ font-size:0.75rem; color:#a8730f; font-weight:700; margin-bottom:6px; }
+  .leaf-name{ font-family:'Gaegu',cursive; font-size:1.15rem; color:#7a4a1c; margin-top:4px; }
+
+  .stuck-card{
+    background:#FFF0EE; border-color:#F3B7AE;
+  }
+  .stuck-text{ font-size:0.78rem; color:#a14b3f; margin-top:6px; }
+
+  footer.made-by{
+    text-align:center; font-size:0.75rem; color:#5c6b4a; padding: 10px 0 18px;
+  }
+
+  @media (max-width: 560px){
+    .landing-card{ padding: 30px 20px 26px; }
+    .dataset-btn{ width: 42%; padding:16px 10px; }
+    .tree-scroll{ padding: 28px 10px 60px; }
+    ul.tree li{ padding: 34px 8px 0; }
+  }
+</style>
+</head>
+<body>
+
+<div id="landing">
+  <div class="landing-card">
+    <h1>🌳 결정트리 체험</h1>
+    <p class="sub">질문을 골라서 나뭇가지를 나누고, 동물과 과일 친구들을 알아맞혀 보세요!</p>
+    <div class="badge-row">
+      <span class="badge">회원가입 필요 없음</span>
+      <span class="badge">누구나 바로 체험</span>
+      <span class="badge">초등학생도 쉽게!</span>
+    </div>
+    <p class="pick-title">무엇을 분류해 볼까요?</p>
+    <div class="dataset-row">
+      <button class="dataset-btn" data-set="animals">
+        <span class="dataset-emoji">🐶🐱🦁</span>
+        <span class="dataset-name">동물 친구들</span>
+        <span class="dataset-desc">8가지 동물을 질문으로 구분해요</span>
+      </button>
+      <button class="dataset-btn" data-set="fruits">
+        <span class="dataset-emoji">🍎🍌🍇</span>
+        <span class="dataset-name">과일 친구들</span>
+        <span class="dataset-desc">8가지 과일을 질문으로 구분해요</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="play">
+  <header class="topbar">
+    <div class="topbar-title">
+      <span class="emoji" id="topbarEmoji">🌳</span>
+      <div>
+        <h2 id="topbarTitle">결정트리 체험</h2>
+        <div class="count" id="topbarCount"></div>
+      </div>
+    </div>
+    <div class="topbar-buttons">
+      <button class="pill-btn" id="learnBtn">💡 무엇을 배웠을까요?</button>
+      <button class="pill-btn" id="switchBtn">주제 바꾸기</button>
+      <button class="pill-btn primary" id="resetBtn">처음부터 다시</button>
+    </div>
+  </header>
+  <div class="hint-bar">질문 버튼을 누르면 "네" 와 "아니오" 로 가지가 나뉘어요. 친구가 한 명만 남으면 정답이에요! ✨</div>
+  <div class="tree-scroll">
+    <ul class="tree" id="treeRoot"></ul>
+  </div>
+  <footer class="made-by">🌱 나뭇가지를 계속 눌러서 끝까지 나눠보세요</footer>
+
+  <div id="learnOverlay" class="overlay">
+    <div class="learn-modal">
+      <button class="close-btn" id="closeLearnBtn">✕</button>
+      <h2>💡 이 체험에서 알 수 있는 것</h2>
+      <ul class="learn-list">
+        <li><b>결정트리는 "예/아니오 질문의 연속"이에요.</b> 질문 하나를 답할 때마다 남은 후보가 점점 줄어들고, 결국 하나만 남으면 그게 정답이에요.</li>
+        <li><b>질문의 순서에 따라 나무 모양이 달라져요.</b> 같은 8가지 동물이라도 어떤 질문을 먼저 하느냐에 따라 가지가 빨리 갈라질 수도, 늦게 갈라질 수도 있어요.</li>
+        <li><b>실생활에도 같은 원리가 쓰여요.</b> 스무고개 게임은 물론, 병원에서 증상으로 병을 좁혀가는 것, 이메일이 스팸인지 아닌지 컴퓨터가 구분하는 것도 결정트리와 같은 방식을 사용해요.</li>
+      </ul>
+      <h2>🌱 더 좋은 첫 질문(분류 기준)을 고르는 법</h2>
+      <ul class="learn-list">
+        <li><b>최대한 반씩 나누는 질문이 좋아요.</b> 8명 중 4명/4명으로 나누는 질문이, 7명/1명으로 나누는 질문보다 더 효율적이에요. 한쪽에 몰리면 그 다음에도 질문을 많이 해야 하거든요.</li>
+        <li><b>겹치지 않는 새로운 정보를 주는 질문이 좋아요.</b> 이미 나눈 기준과 비슷한 질문을 또 하면 그룹이 잘 나뉘지 않아요.</li>
+        <li><b>모두에게 명확하게 적용되는 질문이어야 해요.</b> 애매하게 "네/아니오"로 답하기 힘든 질문은 좋은 기준이 되기 어려워요.</li>
+      </ul>
+      <p class="learn-tip">👉 실제 인공지능의 결정트리 알고리즘(예: ID3, CART)도 이 원리를 사용해요. "정보 이득(Information Gain)"이나 "지니 불순도(Gini Impurity)"라는 방법으로, 그룹을 가장 고르고 순수하게 나누는 질문을 자동으로 찾아서 먼저 사용해요. 쉽게 말하면, 컴퓨터도 "가장 반반씩 잘 나누는 질문"을 좋은 질문으로 골라요!</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+  // ---------------- Data ----------------
+  const DATASETS = {
+    animals: {
+      title: "동물 친구들 결정트리",
+      emoji: "🐾",
+      items: [
+        {id:'dog', emoji:'🐶', name:'강아지', attrs:{hasLegs:true, canFly:false, livesInWater:false, bigEars:false, hasMane:false, meows:false, jumpsWell:false}},
+        {id:'cat', emoji:'🐱', name:'고양이', attrs:{hasLegs:true, canFly:false, livesInWater:false, bigEars:false, hasMane:false, meows:true, jumpsWell:false}},
+        {id:'lion', emoji:'🦁', name:'사자', attrs:{hasLegs:true, canFly:false, livesInWater:false, bigEars:false, hasMane:true, meows:false, jumpsWell:false}},
+        {id:'elephant', emoji:'🐘', name:'코끼리', attrs:{hasLegs:true, canFly:false, livesInWater:false, bigEars:true, hasMane:false, meows:false, jumpsWell:false}},
+        {id:'eagle', emoji:'🦅', name:'독수리', attrs:{hasLegs:true, canFly:true, livesInWater:false, bigEars:false, hasMane:false, meows:false, jumpsWell:false}},
+        {id:'penguin', emoji:'🐧', name:'펭귄', attrs:{hasLegs:true, canFly:false, livesInWater:true, bigEars:false, hasMane:false, meows:false, jumpsWell:false}},
+        {id:'fish', emoji:'🐟', name:'물고기', attrs:{hasLegs:false, canFly:false, livesInWater:true, bigEars:false, hasMane:false, meows:false, jumpsWell:false}},
+        {id:'frog', emoji:'🐸', name:'개구리', attrs:{hasLegs:true, canFly:false, livesInWater:true, bigEars:false, hasMane:false, meows:false, jumpsWell:true}}
+      ],
+      questions: [
+        {attr:'hasLegs', text:'다리가 있나요?'},
+        {attr:'canFly', text:'하늘을 날 수 있나요?'},
+        {attr:'livesInWater', text:'물속에서 살 수 있나요?'},
+        {attr:'bigEars', text:'귀가 아주 큰가요?'},
+        {attr:'hasMane', text:'갈기가 있나요?'},
+        {attr:'meows', text:'야옹 하고 우나요?'},
+        {attr:'jumpsWell', text:'폴짝폴짝 잘 뛰나요?'}
+      ]
+    },
+    fruits: {
+      title: "과일 친구들 결정트리",
+      emoji: "🍉",
+      items: [
+        {id:'apple', emoji:'🍎', name:'사과', attrs:{peel:false, yellow:false, sour:false, fuzzy:false, manySeeds:false, big:false, round:true}},
+        {id:'banana', emoji:'🍌', name:'바나나', attrs:{peel:true, yellow:true, sour:false, fuzzy:false, manySeeds:false, big:false, round:false}},
+        {id:'grape', emoji:'🍇', name:'포도', attrs:{peel:false, yellow:false, sour:false, fuzzy:false, manySeeds:true, big:false, round:true}},
+        {id:'watermelon', emoji:'🍉', name:'수박', attrs:{peel:false, yellow:false, sour:false, fuzzy:false, manySeeds:true, big:true, round:true}},
+        {id:'strawberry', emoji:'🍓', name:'딸기', attrs:{peel:false, yellow:false, sour:false, fuzzy:false, manySeeds:true, big:false, round:false}},
+        {id:'tangerine', emoji:'🍊', name:'귤', attrs:{peel:true, yellow:false, sour:false, fuzzy:false, manySeeds:false, big:false, round:true}},
+        {id:'lemon', emoji:'🍋', name:'레몬', attrs:{peel:true, yellow:true, sour:true, fuzzy:false, manySeeds:false, big:false, round:false}},
+        {id:'kiwi', emoji:'🥝', name:'키위', attrs:{peel:false, yellow:false, sour:false, fuzzy:true, manySeeds:false, big:false, round:false}}
+      ],
+      questions: [
+        {attr:'peel', text:'손으로 껍질을 벗겨 먹나요?'},
+        {attr:'yellow', text:'색깔이 노란색인가요?'},
+        {attr:'sour', text:'새콤한 맛이 나나요?'},
+        {attr:'fuzzy', text:'겉껍질에 털이 보송보송한가요?'},
+        {attr:'manySeeds', text:'씨가 아주 많나요?'},
+        {attr:'big', text:'크기가 아주 큰가요?'},
+        {attr:'round', text:'동그란 모양인가요?'}
+      ]
+    }
+  };
+
+  const QUESTION_COLORS = ['#FF9F6B','#4D96FF','#6BCB77','#C780FA','#FFB84D','#00B8B0','#FF6BA9'];
+
+  let currentSetKey = null;
+  let currentSet = null;
+  let rootNode = null;
+
+  function makeNode(items){
+    return { items, question:null, yes:null, no:null };
+  }
+
+  function validQuestionsFor(node){
+    return currentSet.questions.filter(q => {
+      const yes = node.items.filter(it => !!it.attrs[q.attr]);
+      const no = node.items.filter(it => !it.attrs[q.attr]);
+      return yes.length > 0 && no.length > 0;
+    });
+  }
+
+  function chooseQuestion(node, q){
+    node.question = q;
+    const yesItems = node.items.filter(it => !!it.attrs[q.attr]);
+    const noItems = node.items.filter(it => !it.attrs[q.attr]);
+    node.yes = makeNode(yesItems);
+    node.no = makeNode(noItems);
+    render();
+  }
+
+  function resetTree(){
+    rootNode = makeNode(currentSet.items.slice());
+    render();
+  }
+
+  function renderNodeLi(node, branchLabel){
+    const li = document.createElement('li');
+
+    if(branchLabel){
+      const bl = document.createElement('div');
+      bl.className = 'branch-label';
+      bl.textContent = branchLabel;
+      li.appendChild(bl);
+    }
+
+    const card = document.createElement('div');
+    card.className = 'node-card';
+
+    if(node.items.length === 1){
+      // leaf
+      card.classList.add('leaf-card');
+      const it = node.items[0];
+      const star = document.createElement('div');
+      star.className = 'leaf-star';
+      star.textContent = '✨ 정답을 찾았어요!';
+      card.appendChild(star);
+      const icon = document.createElement('div');
+      icon.className = 'item-icon solo';
+      icon.textContent = it.emoji;
+      card.appendChild(icon);
+      const nm = document.createElement('div');
+      nm.className = 'leaf-name';
+      nm.textContent = it.name;
+      card.appendChild(nm);
+      li.appendChild(card);
+      return li;
+    }
+
+    // item icons row
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    node.items.forEach(it => {
+      const span = document.createElement('span');
+      span.className = 'item-icon';
+      span.title = it.name;
+      span.textContent = it.emoji;
+      row.appendChild(span);
+    });
+    card.appendChild(row);
+
+    if(node.question){
+      const qLabel = document.createElement('div');
+      qLabel.className = 'node-question';
+      qLabel.textContent = '❓ ' + node.question.text;
+      card.appendChild(qLabel);
+      li.appendChild(card);
+
+      const ul = document.createElement('ul');
+      ul.appendChild(renderNodeLi(node.no, '아니오'));
+      ul.appendChild(renderNodeLi(node.yes, '네'));
+      li.appendChild(ul);
+      return li;
+    }
+
+    const valid = validQuestionsFor(node);
+    if(valid.length === 0){
+      card.classList.add('stuck-card');
+      const t = document.createElement('div');
+      t.className = 'stuck-text';
+      t.textContent = '이 친구들은 지금 질문으로는 더 나눌 수 없어요 :)';
+      card.appendChild(t);
+      li.appendChild(card);
+      return li;
+    }
+
+    const ask = document.createElement('div');
+    ask.className = 'ask-label';
+    ask.textContent = '어떤 질문으로 나눠볼까요?';
+    card.appendChild(ask);
+
+    const list = document.createElement('div');
+    list.className = 'q-btn-list';
+    valid.forEach((q) => {
+      const globalIdx = currentSet.questions.indexOf(q);
+      const btn = document.createElement('button');
+      btn.className = 'q-btn';
+      btn.style.background = QUESTION_COLORS[globalIdx % QUESTION_COLORS.length];
+      btn.textContent = q.text;
+      btn.addEventListener('click', () => chooseQuestion(node, q));
+      list.appendChild(btn);
+    });
+    card.appendChild(list);
+    li.appendChild(card);
+    return li;
+  }
+
+  function countLeaves(node){
+    if(node.items.length === 1) return 1;
+    if(!node.question) return 0;
+    return countLeaves(node.yes) + countLeaves(node.no);
+  }
+
+  function render(){
+    const treeRoot = document.getElementById('treeRoot');
+    treeRoot.innerHTML = '';
+    treeRoot.appendChild(renderNodeLi(rootNode, null));
+    const found = countLeaves(rootNode);
+    document.getElementById('topbarCount').textContent =
+      `총 ${currentSet.items.length}개 중 ${found}개 찾음`;
+  }
+
+  function startSet(key){
+    currentSetKey = key;
+    currentSet = DATASETS[key];
+    document.getElementById('topbarEmoji').textContent = currentSet.emoji;
+    document.getElementById('topbarTitle').textContent = currentSet.title;
+    document.getElementById('landing').style.display = 'none';
+    document.getElementById('play').style.display = 'flex';
+    resetTree();
+  }
+
+  document.querySelectorAll('.dataset-btn').forEach(btn => {
+    btn.addEventListener('click', () => startSet(btn.dataset.set));
+  });
+  document.getElementById('resetBtn').addEventListener('click', resetTree);
+  document.getElementById('switchBtn').addEventListener('click', () => {
+    document.getElementById('play').style.display = 'none';
+    document.getElementById('landing').style.display = 'flex';
+  });
+
+})();
+</script>
+</body>
+</html>
