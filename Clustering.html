@@ -512,7 +512,9 @@
             ansAX: 0,
             ansAY: 0,
             ansBX: 0,
-            ansBY: 0
+            ansBY: 0,
+            showCenterA: false,
+            showCenterB: false
         };
 
         // Bright friendly color palette
@@ -1055,7 +1057,7 @@
         }
 
         // --- QUIZ CANVAS & GENERATOR LOGIC ---
-        function drawQuizGridCanvas(canvasId, pointsA, pointsB, showLabels = true) {
+        function drawQuizGridCanvas(canvasId, pointsA, pointsB, showLabels = true, centerA = null, centerB = null) {
             const qCanvas = document.getElementById(canvasId);
             if (!qCanvas) return;
             const qCtx = qCanvas.getContext('2d');
@@ -1165,6 +1167,57 @@
                 });
             }
 
+            // Draw Red Center Points if revealed/correct
+            if (centerA) {
+                const pix = gridToPx(centerA.x, centerA.y);
+                // Red Glow Ring
+                qCtx.beginPath();
+                qCtx.arc(pix.x, pix.y, 16, 0, Math.PI * 2);
+                qCtx.fillStyle = 'rgba(239, 68, 68, 0.3)';
+                qCtx.fill();
+
+                // Red Star / Circle Marker
+                qCtx.beginPath();
+                qCtx.arc(pix.x, pix.y, 11, 0, Math.PI * 2);
+                qCtx.fillStyle = '#ef4444';
+                qCtx.strokeStyle = '#ffffff';
+                qCtx.lineWidth = 2.5;
+                qCtx.fill();
+                qCtx.stroke();
+
+                drawStar(qCtx, pix.x, pix.y, 5, 6, 3, '#ffffff');
+
+                qCtx.font = 'black 12px "Noto Sans KR", sans-serif';
+                qCtx.fillStyle = '#dc2626';
+                qCtx.textAlign = 'center';
+                qCtx.fillText('★ A중심', pix.x, pix.y - 18);
+            }
+
+            if (centerB) {
+                const pix = gridToPx(centerB.x, centerB.y);
+                // Red Glow Ring
+                qCtx.beginPath();
+                qCtx.arc(pix.x, pix.y, 16, 0, Math.PI * 2);
+                qCtx.fillStyle = 'rgba(239, 68, 68, 0.3)';
+                qCtx.fill();
+
+                // Red Star / Circle Marker
+                qCtx.beginPath();
+                qCtx.arc(pix.x, pix.y, 11, 0, Math.PI * 2);
+                qCtx.fillStyle = '#ef4444';
+                qCtx.strokeStyle = '#ffffff';
+                qCtx.lineWidth = 2.5;
+                qCtx.fill();
+                qCtx.stroke();
+
+                drawStar(qCtx, pix.x, pix.y, 5, 6, 3, '#ffffff');
+
+                qCtx.font = 'black 12px "Noto Sans KR", sans-serif';
+                qCtx.fillStyle = '#dc2626';
+                qCtx.textAlign = 'center';
+                qCtx.fillText('★ B중심', pix.x, pix.y - 18);
+            }
+
             // Draw Top Legend if Labels active
             if (showLabels) {
                 qCtx.font = 'bold 13px "Noto Sans KR", sans-serif';
@@ -1191,35 +1244,44 @@
                     qCtx.fillStyle = '#0f172a';
                     qCtx.fillText('군집 B', margin + 112, 15);
                 }
+
+                if (centerA || centerB) {
+                    qCtx.beginPath();
+                    qCtx.arc(margin + 190, 15, 6, 0, Math.PI * 2);
+                    qCtx.fillStyle = '#ef4444';
+                    qCtx.fill();
+                    qCtx.fillStyle = '#dc2626';
+                    qCtx.fillText('★ 계산된 중심점', margin + 200, 15);
+                }
             }
         }
 
         function drawQuizExampleCanvas() {
-            // Points matching Image 1
+            // Points matching Image 1 with example red center at (4,3)
             const exPointsA = [
                 { x: 2, y: 2, num: '①' },
                 { x: 4, y: 1, num: '②' },
                 { x: 6, y: 6, num: '③' }
             ];
-            drawQuizGridCanvas('quizExampleCanvas', exPointsA, null, true);
+            drawQuizGridCanvas('quizExampleCanvas', exPointsA, null, true, { x: 4, y: 3 }, null);
         }
 
-        // --- 3 FIXED QUIZ PROBLEMS FOR ALL STUDENTS ---
+        // --- 3 PROGRESSIVE QUIZ PROBLEMS ---
         const FIXED_QUIZ_PROBLEMS = [
             {
-                // Problem 1 (Matches Image 2 style)
-                clusterA: [{ x: 1, y: 4 }, { x: 5, y: 6 }], // Avg: (3, 5)
-                clusterB: [{ x: 3, y: 1 }, { x: 4, y: 3 }, { x: 5, y: 2 }] // Avg: (4, 2)
+                // Problem 1 (아주 쉬움: 점 2개씩, 정수 평균)
+                clusterA: [{ x: 2, y: 2 }, { x: 4, y: 4 }], // Avg: (3, 3)
+                clusterB: [{ x: 1, y: 5 }, { x: 5, y: 5 }]  // Avg: (3, 5)
             },
             {
-                // Problem 2
-                clusterA: [{ x: 2, y: 2 }, { x: 4, y: 6 }], // Avg: (3, 4)
-                clusterB: [{ x: 2, y: 1 }, { x: 4, y: 1 }, { x: 6, y: 1 }] // Avg: (4, 1)
+                // Problem 2 (중간: 점 3개씩)
+                clusterA: [{ x: 1, y: 2 }, { x: 3, y: 6 }, { x: 5, y: 1 }], // Avg: (3, 3)
+                clusterB: [{ x: 2, y: 4 }, { x: 4, y: 1 }, { x: 6, y: 4 }]  // Avg: (4, 3)
             },
             {
-                // Problem 3
-                clusterA: [{ x: 1, y: 2 }, { x: 3, y: 4 }, { x: 5, y: 3 }], // Avg: (3, 3)
-                clusterB: [{ x: 2, y: 6 }, { x: 6, y: 6 }] // Avg: (4, 6)
+                // Problem 3 (도전 난이도: 점 4개씩 & 소수점 .5 평균 포함)
+                clusterA: [{ x: 1, y: 2 }, { x: 2, y: 5 }, { x: 4, y: 1 }, { x: 5, y: 6 }], // Avg: (3, 3.5)
+                clusterB: [{ x: 1, y: 1 }, { x: 3, y: 5 }, { x: 4, y: 0 }, { x: 6, y: 2 }]  // Avg: (3.5, 2)
             }
         ];
 
@@ -1254,7 +1316,9 @@
                 ansAX: sumAX / selected.clusterA.length,
                 ansAY: sumAY / selected.clusterA.length,
                 ansBX: sumBX / selected.clusterB.length,
-                ansBY: sumBY / selected.clusterB.length
+                ansBY: sumBY / selected.clusterB.length,
+                showCenterA: false,
+                showCenterB: false
             };
 
             // Reset inputs & feedback message
@@ -1267,7 +1331,7 @@
             fbBox.className = "min-h-[42px] flex items-center justify-center font-extrabold text-base rounded-xl px-3 py-1.5 opacity-0 transition-opacity";
             fbBox.textContent = '';
 
-            // Render selected question grid
+            // Render selected question grid without centers initially
             drawQuizGridCanvas('quizProblemCanvas', currentQuizData.clusterA, currentQuizData.clusterB, true);
         }
 
@@ -1291,9 +1355,17 @@
             const isACorrect = (Math.abs(inputAX - currentQuizData.ansAX) < 0.01) && (Math.abs(inputAY - currentQuizData.ansAY) < 0.01);
             const isBCorrect = (Math.abs(inputBX - currentQuizData.ansBX) < 0.01) && (Math.abs(inputBY - currentQuizData.ansBY) < 0.01);
 
+            currentQuizData.showCenterA = isACorrect;
+            currentQuizData.showCenterB = isBCorrect;
+
+            // Redraw grid displaying red center points for correct answers
+            const cA = isACorrect ? { x: currentQuizData.ansAX, y: currentQuizData.ansAY } : null;
+            const cB = isBCorrect ? { x: currentQuizData.ansBX, y: currentQuizData.ansBY } : null;
+            drawQuizGridCanvas('quizProblemCanvas', currentQuizData.clusterA, currentQuizData.clusterB, true, cA, cB);
+
             if (isACorrect && isBCorrect) {
                 fbBox.className = "min-h-[42px] flex items-center justify-center font-black text-lg rounded-xl px-3 py-1.5 bg-emerald-500 text-white shadow-md animate-bounce";
-                fbBox.textContent = `🎉 ${currentQuizIndex + 1}번 문제 정답입니다! 아주 훌륭해요! AI처럼 정확히 평균을 계산했어요!`;
+                fbBox.textContent = `🎉 ${currentQuizIndex + 1}번 문제 정답입니다! 빨간색 중심점이 모눈종이에 나타났어요!`;
                 playSound('correct');
             } else {
                 fbBox.className = "min-h-[42px] flex items-center justify-center font-extrabold text-base rounded-xl px-3 py-1.5 bg-rose-100 text-rose-900 border border-rose-300";
