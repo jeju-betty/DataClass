@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 군집화(K-평균) 실험실 - 끼리끼리 모여라!</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Noto Sans KR, Gaegu) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@700&family=Noto+Sans+KR:wght@500;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                        cute: ['Gaegu', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #f0fdf4;
+            user-select: none;
+            font-size: 18px; /* 글씨 크기를 기본적으로 크게 설정 */
+        }
+        .cute-card {
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+        }
+        canvas {
+            touch-action: none;
+        }
+        /* Modal Animation */
+        .modal-enter {
+            animation: modalFadeIn 0.25s ease-out forwards;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="font-sans text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Top Header -->
+    <header class="bg-emerald-500 text-white shadow-lg sticky top-0 z-30 py-3.5 px-6">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-yellow-400 text-emerald-950 w-11 h-11 rounded-2xl flex items-center justify-center font-bold text-2xl shadow transform -rotate-3">
+                    <i class="fa-solid fa-shapes"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-black font-cute tracking-wide">AI 군집화(K-평균) 실험실</h1>
+                    <p class="text-xs text-emerald-100 hidden sm:block">정답 없이도 끼리끼리 스스로 모으는 인공지능 체험!</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <!-- Quiz Modal Trigger Button -->
+                <button onclick="openQuizModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm md:text-base font-black px-3.5 py-2 rounded-2xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95">
+                    <i class="fa-solid fa-bullseye text-base text-yellow-300"></i>
+                    <span>🎯 중심 찾기 퀴즈</span>
+                </button>
+
+                <!-- Popup Guide Trigger Button -->
+                <button onclick="openModal()" class="bg-yellow-400 hover:bg-yellow-300 text-emerald-950 text-sm md:text-base font-black px-3.5 py-2 rounded-2xl transition flex items-center space-x-2 shadow-md hover:scale-105 active:scale-95">
+                    <i class="fa-solid fa-lightbulb text-base text-amber-800"></i>
+                    <span>💡 원리 설명</span>
+                </button>
+
+                <!-- Sound Toggle -->
+                <button onclick="toggleSound()" id="soundToggleBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm md:text-base font-bold px-3 py-2 rounded-2xl flex items-center space-x-2 transition shadow">
+                    <i class="fa-solid fa-volume-high text-base" id="soundIcon"></i>
+                    <span id="soundLabel" class="hidden lg:inline">소리 켜짐</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container (Left-Right Split Layout) -->
+    <main class="max-w-7xl mx-auto px-4 py-4 flex-grow w-full grid grid-cols-1 md:grid-cols-12 gap-5 items-stretch min-h-[calc(100vh-90px)]">
+
+        <!-- Left Side Controls Area -->
+        <section class="md:col-span-5 lg:col-span-4 flex flex-col justify-between space-y-3">
+            
+            <!-- Helper Guide Message -->
+            <div class="bg-white p-4 rounded-3xl cute-card border-2 border-emerald-300 flex items-center space-x-3 shadow-sm">
+                <div class="text-3xl bg-emerald-100 p-2.5 rounded-2xl flex-shrink-0">
+                    🤖
+                </div>
+                <div>
+                    <h2 class="font-extrabold text-emerald-900 text-base md:text-lg">AI 도우미 안내</h2>
+                    <p id="mascotMessage" class="text-sm md:text-base text-slate-700 mt-0.5 leading-snug font-medium">
+                        화면을 클릭해서 점을 만들어보세요. K(모둠 수)를 설정하고 아래 버튼을 누르면 AI가 군집화를 시작합니다!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Main Control Panel -->
+            <div class="bg-white p-5 rounded-3xl cute-card border-2 border-slate-100 space-y-4 flex-grow flex flex-col justify-around shadow-sm">
+                
+                <!-- 1. K Selector -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="font-black text-slate-800 text-base md:text-lg flex items-center space-x-2">
+                            <span>1. 모둠 개수 (K)</span>
+                        </label>
+                        <span id="kValueDisplay" class="bg-emerald-500 text-white font-black text-lg md:text-xl px-3.5 py-0.5 rounded-2xl shadow">K = 3</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="adjustK(-1)" class="w-12 h-12 bg-slate-100 hover:bg-slate-200 active:scale-90 font-black text-2xl rounded-2xl text-slate-800 flex items-center justify-center transition border border-slate-300">-</button>
+                        <input type="range" id="kSlider" min="1" max="6" value="3" oninput="onKSliderChange(this.value)" class="w-full accent-emerald-500 cursor-pointer h-3 bg-slate-200 rounded-lg">
+                        <button onclick="adjustK(1)" class="w-12 h-12 bg-slate-100 hover:bg-slate-200 active:scale-90 font-black text-2xl rounded-2xl text-slate-800 flex items-center justify-center transition border border-slate-300">+</button>
+                    </div>
+                </div>
+
+                <!-- 2. Data Presets -->
+                <div>
+                    <label class="block font-black text-slate-800 text-sm md:text-base mb-1.5">2. 데이터 모양 고르기</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="btnPresetRandom" onclick="loadPreset('random')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-bold text-sm md:text-base py-2.5 px-2 rounded-2xl border-2 border-emerald-200 transition flex items-center justify-center space-x-1.5 active:scale-95">
+                            <span>🎲 무작위</span>
+                        </button>
+                        <button id="btnPresetClusters" onclick="loadPreset('clusters3')" class="bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-sm md:text-base py-2.5 px-2 rounded-2xl border-2 border-slate-200 transition flex items-center justify-center space-x-1.5 active:scale-95">
+                            <span>🎯 3개 뭉치</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. Big Action Execution Buttons -->
+                <div class="pt-2 border-t border-slate-100 space-y-2.5">
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="stepBtn" onclick="runOneStep()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base md:text-lg py-3 px-3 rounded-2xl shadow-md transition active:scale-95 flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-forward-step text-lg"></i>
+                            <span>1단계씩</span>
+                        </button>
+                        <button id="autoBtn" onclick="toggleAutoPlay()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-black text-base md:text-lg py-3 px-3 rounded-2xl shadow-md transition active:scale-95 flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-play text-lg" id="autoIcon"></i>
+                            <span id="autoLabel">자동 실행</span>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-between gap-2">
+                        <button onclick="resetSimulation()" class="w-1/2 bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-sm md:text-base py-2.5 rounded-2xl border border-amber-200 transition active:scale-95">
+                            <i class="fa-solid fa-rotate-left mr-1"></i>다시 시작
+                        </button>
+                        <button onclick="clearPoints()" class="w-1/2 bg-rose-50 hover:bg-rose-100 text-rose-800 font-bold text-sm md:text-base py-2.5 rounded-2xl border border-rose-200 transition active:scale-95">
+                            <i class="fa-solid fa-trash-can mr-1"></i>싹 지우기
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Status Indicator Card -->
+            <div class="bg-slate-900 text-white p-3.5 rounded-3xl cute-card space-y-1 shadow-sm">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+                    <span class="text-xs md:text-sm font-bold text-slate-400">현재 상태</span>
+                    <span id="iterCountBadge" class="bg-emerald-800 text-yellow-300 text-xs md:text-sm font-black px-2.5 py-0.5 rounded-xl">0회 반복중</span>
+                </div>
+                <div class="flex items-center justify-between text-sm md:text-base">
+                    <span class="text-slate-300">진행 단계:</span>
+                    <span id="phaseBadge" class="font-black text-yellow-300 text-xs md:text-sm bg-slate-800 px-2.5 py-0.5 rounded-xl">대기 중 (준비)</span>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Side Interactive Canvas Area -->
+        <section class="md:col-span-7 lg:col-span-8 flex flex-col h-full min-h-[500px]">
+            
+            <div class="relative bg-white rounded-3xl cute-card border-3 border-emerald-400 overflow-hidden shadow-xl flex-grow flex flex-col h-full">
+                
+                <!-- Canvas Status Header -->
+                <div class="bg-emerald-950 text-emerald-100 px-4 py-2.5 flex items-center justify-between text-sm md:text-base z-10 font-bold">
+                    <div class="flex items-center space-x-2">
+                        <span id="canvasStatusDot" class="w-3 h-3 rounded-full bg-yellow-400 animate-ping"></span>
+                        <span id="canvasStatusText" class="text-yellow-300 text-xs md:text-sm">화면을 클릭하여 직접 점을 추가할 수 있어요!</span>
+                    </div>
+                    <label class="flex items-center space-x-2 cursor-pointer text-xs md:text-sm bg-emerald-900 px-2.5 py-1 rounded-xl hover:bg-emerald-800 transition">
+                        <input type="checkbox" id="showLinesCheck" checked onchange="redrawCanvas()" class="w-4 h-4 accent-yellow-400">
+                        <span>연결선 보기</span>
+                    </label>
+                </div>
+
+                <!-- Canvas Area -->
+                <div class="relative flex-grow w-full h-full min-h-[380px]" id="canvasWrapper">
+                    <canvas id="clusterCanvas" class="w-full h-full absolute inset-0 cursor-crosshair bg-slate-50/60"></canvas>
+                    
+                    <!-- Completion Celebration Overlay -->
+                    <div id="completionOverlay" class="absolute inset-0 bg-emerald-950/80 backdrop-blur-sm flex flex-col items-center justify-center text-white p-6 opacity-0 pointer-events-none transition-opacity duration-300 z-20">
+                        <div class="text-6xl mb-3 animate-bounce">🎊</div>
+                        <h3 class="text-3xl md:text-4xl font-black font-cute text-yellow-300">군집화 완성!</h3>
+                        <p class="text-base text-emerald-100 mt-2 max-w-md text-center font-medium">
+                            더 이상 모둠 대표(⭐ 깃발)가 움직이지 않아요! 모든 친구들이 딱 맞는 모둠을 찾았습니다.
+                        </p>
+                        <button onclick="dismissOverlay()" class="mt-5 bg-yellow-400 hover:bg-yellow-300 text-emerald-950 font-black text-base px-6 py-2.5 rounded-2xl shadow-lg transition active:scale-95">
+                            완성된 결과 관찰하기! 👀
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Footer Legend -->
+                <div class="bg-white border-t border-slate-100 p-3 flex flex-wrap items-center justify-around gap-2 text-sm md:text-base font-bold text-slate-700">
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-3.5 h-3.5 rounded-full bg-slate-400 inline-block"></span>
+                        <span>데이터 점</span>
+                    </div>
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-4 h-4 rounded-full border-2 border-slate-900 bg-yellow-400 flex items-center justify-center text-[10px]">★</span>
+                        <span>모둠 대표(중심)</span>
+                    </div>
+                    <div class="flex items-center space-x-1.5">
+                        <span class="w-4 h-0 border-t-2 border-dashed border-slate-400 inline-block"></span>
+                        <span>가장 가까운 거리</span>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Bottom Footer (Custom Copyright Section) -->
+    <footer class="bg-emerald-900/90 text-emerald-100 py-4 text-center font-sans border-t border-emerald-700/50 mt-2">
+        <p class="text-xs md:text-sm tracking-widest text-emerald-300 font-black uppercase">CODING CREATION</p>
+        <p class="text-xl md:text-2xl font-black font-cute my-0.5 text-yellow-300">Copyright by 정선쌤</p>
+        <p class="text-xs md:text-sm text-emerald-200 font-bold">Made with creativity 💻</p>
+    </footer>
+
+    <!-- Educational Principle Explanation Popup Modal -->
+    <div id="guideModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none transition-opacity duration-200">
+        <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 md:p-8 cute-card border-4 border-emerald-400 shadow-2xl relative modal-enter">
+            
+            <!-- Close Button -->
+            <button onclick="closeModal()" class="absolute top-5 right-5 w-11 h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full flex items-center justify-center text-2xl font-black transition">
+                ✕
+            </button>
+
+            <!-- Modal Header -->
+            <div class="text-center mb-6 space-y-2">
+                <span class="bg-yellow-300 text-emerald-950 font-extrabold text-sm px-4 py-1.5 rounded-full inline-block">초등 눈높이 AI 교실</span>
+                <h2 class="text-3xl md:text-4xl font-black font-cute text-emerald-900">군집화(K-평균)는 어떤 원리일까요?</h2>
+            </div>
+
+            <!-- Easy Explanation Cards -->
+            <div class="space-y-5 text-slate-700">
+                
+                <!-- Card 1: Unsupervised Learning -->
+                <div class="bg-emerald-50 p-5 rounded-2xl border-2 border-emerald-200 flex items-start space-x-4">
+                    <div class="text-4xl">🏷️</div>
+                    <div>
+                        <div class="flex items-center space-x-2 mb-1">
+                            <span class="bg-emerald-600 text-white font-extrabold text-xs px-2.5 py-0.5 rounded-full">인공지능 핵심 개념</span>
+                            <h3 class="font-extrabold text-emerald-900 text-lg md:text-xl">비지도학습 (Unsupervised Learning)</h3>
+                        </div>
+                        <p class="text-base text-slate-600 leading-relaxed">
+                            선생님이 정답(라벨)을 하나하나 알려주지(지도하지) 않고, <strong>AI가 스스로 데이터들의 위치나 특징을 비교하여 비슷한 것끼리 묶어내는 알고리즘</strong>이에요!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 2: Meaning of K and Means -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-amber-50 p-5 rounded-2xl border-2 border-amber-200 space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-amber-500 text-white font-black text-sm px-2.5 py-0.5 rounded-lg">K</span>
+                            <h4 class="font-bold text-lg text-slate-800">몇 개 모둠으로 나눌까?</h4>
+                        </div>
+                        <p class="text-base text-slate-600">
+                            체육 시간에 **"3개 모둠으로 나누자!"** 할 때의 숫자 3이 바로 **K**예요.
+                        </p>
+                    </div>
+
+                    <div class="bg-indigo-50 p-5 rounded-2xl border-2 border-indigo-200 space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-indigo-500 text-white font-black text-sm px-2.5 py-0.5 rounded-lg">평균 (Means)</span>
+                            <h4 class="font-bold text-lg text-slate-800">모둠 한가운데 위치</h4>
+                        </div>
+                        <p class="text-base text-slate-600">
+                            모둠원 친구들 위치의 **딱 중간(평균) 위치**로 대표 깃발이 찾아 이동해요.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 3: 4 Step Process -->
+                <div class="bg-slate-50 p-5 rounded-2xl border-2 border-slate-200 space-y-3">
+                    <h3 class="font-black text-slate-800 text-lg flex items-center space-x-2">
+                        <span>🔄 순서대로 알아보기 (4단계)</span>
+                    </h3>
+
+                    <ol class="space-y-2 text-base">
+                        <li class="flex items-center space-x-2">
+                            <span class="w-7 h-7 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold text-sm">1</span>
+                            <span><strong>대표 깃발 세우기:</strong> K개만큼 모둠 대표 깃발을 무작위로 세워요.</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <span class="w-7 h-7 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold text-sm">2</span>
+                            <span><strong>가까운 쪽에 줄서기:</strong> 점들은 가장 가까운 대표 깃발 색으로 바뀌어요.</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <span class="w-7 h-7 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold text-sm">3</span>
+                            <span><strong>중심(평균)으로 이동:</strong> 대표 깃발이 모인 점들의 딱 중간으로 이동해요.</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <span class="w-7 h-7 bg-emerald-500 text-white rounded-full flex items-center justify-center font-bold text-sm">4</span>
+                            <span><strong>반복 및 완벽 완성:</strong> 더 이상 깃발이 안 움직일 때까지 2~3번을 반복합니다!</span>
+                        </li>
+                    </ol>
+                </div>
+
+                <!-- Card 4: Real World Applications -->
+                <div class="bg-yellow-50 p-5 rounded-2xl border-2 border-yellow-200 space-y-2">
+                    <h3 class="font-black text-amber-900 text-lg">🌍 실생활에서는 어디에 쓰일까요?</h3>
+                    <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-base text-slate-700 font-medium">
+                        <li class="flex items-center space-x-2"><span>🛍️</span> <span>쇼핑몰에서 비슷한 취향의 손님 묶기</span></li>
+                        <li class="flex items-center space-x-2"><span>🖼️</span> <span>비슷한 색깔끼리 묶어서 사진 용량 줄이기</span></li>
+                        <li class="flex items-center space-x-2"><span>📰</span> <span>비슷한 기사끼리 알아서 카테고리 나누기</span></li>
+                        <li class="flex items-center space-x-2"><span>🚚</span> <span>택배기사님 배송 구역 효율적으로 나누기</span></li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer Button -->
+            <div class="mt-6 text-center">
+                <button onclick="closeModal()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xl px-10 py-3 rounded-2xl shadow-lg transition active:scale-95">
+                    확인하고 직접 체험하기!
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Interactive Center Point Calculation Quiz Modal -->
+    <div id="quizModal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 z-50 opacity-0 pointer-events-none transition-opacity duration-200">
+        <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[92vh] overflow-y-auto p-5 md:p-7 cute-card border-4 border-indigo-400 shadow-2xl relative modal-enter">
+            
+            <!-- Close Button -->
+            <button onclick="closeQuizModal()" class="absolute top-4 right-4 w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full flex items-center justify-center text-xl font-black transition z-10">
+                ✕
+            </button>
+
+            <!-- Quiz Modal Header -->
+            <div class="text-center mb-5 space-y-1">
+                <span class="bg-indigo-100 text-indigo-900 font-extrabold text-xs md:text-sm px-4 py-1 rounded-full inline-block">수학 + AI 탐구 퀴즈</span>
+                <h2 class="text-2xl md:text-4xl font-black font-cute text-indigo-950">🎯 군집의 중심 위치 찾기 도전!</h2>
+                <p class="text-sm md:text-base text-slate-600">점들의 x좌표와 y좌표 평균을 직접 계산해 모둠 중심 좌표를 맞혀보세요!</p>
+            </div>
+
+            <div class="space-y-6">
+                
+                <!-- SECTION 1: Example Guide (Matching Image 1) -->
+                <div class="bg-amber-50 rounded-2xl p-4 border-2 border-amber-300 space-y-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-amber-500 text-white font-black text-xs md:text-sm px-3 py-0.5 rounded-lg">예시로 먼저 알아보기</span>
+                        <h3 class="font-bold text-amber-950 text-base md:text-lg">💡 군집 A 중심 위치 구하는법</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                        <!-- Left Grid Canvas Diagram (Image 1 replica) -->
+                        <div class="md:col-span-6 bg-white p-2 rounded-xl border border-amber-200 flex justify-center">
+                            <canvas id="quizExampleCanvas" width="280" height="280" class="max-w-full h-auto"></canvas>
+                        </div>
+
+                        <!-- Right Calculation Breakdown (Image 1 breakdown) -->
+                        <div class="md:col-span-6 space-y-3 bg-white p-4 rounded-xl border border-amber-200">
+                            <div class="flex items-center space-x-2 border-b border-amber-100 pb-2">
+                                <span class="w-4 h-4 rounded-full bg-yellow-400 border border-slate-900 inline-block"></span>
+                                <span class="font-black text-slate-900 text-base">군집 A 중심 위치 찾기</span>
+                            </div>
+
+                            <div class="space-y-2 text-sm md:text-base">
+                                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                                    <p class="font-bold text-indigo-900">1. x좌표의 평균 구하기:</p>
+                                    <p class="text-rose-600 font-extrabold text-base md:text-lg mt-0.5">
+                                        ➔ ( <span class="text-rose-600">2</span> + <span class="text-rose-600">4</span> + <span class="text-rose-600">6</span> ) ÷ 3 = <span class="text-indigo-700 underline text-xl font-black">4</span>
+                                    </p>
+                                </div>
+
+                                <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                                    <p class="font-bold text-indigo-900">2. y좌표의 평균 구하기:</p>
+                                    <p class="text-rose-600 font-extrabold text-base md:text-lg mt-0.5">
+                                        ➔ ( <span class="text-rose-600">2</span> + <span class="text-rose-600">1</span> + <span class="text-rose-600">6</span> ) ÷ 3 = <span class="text-indigo-700 underline text-xl font-black">3</span>
+                                    </p>
+                                </div>
+
+                                <div class="bg-indigo-50 p-2 rounded-xl text-center border border-indigo-200 font-bold text-indigo-950 text-sm md:text-base">
+                                    ✨ 따라서 군집 A의 중심은 <span class="text-indigo-600 text-lg font-black">(4, 3)</span> 이 됩니다!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECTION 2: Interactive Quiz Question (Matching Image 2) -->
+                <div class="bg-indigo-50 rounded-2xl p-4 md:p-5 border-3 border-indigo-300 space-y-4">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-indigo-600 text-white font-black text-xs md:text-sm px-3 py-1 rounded-lg">실전 퀴즈</span>
+                            <h3 class="font-black text-indigo-950 text-lg md:text-xl">✏️ 아래 좌표 모눈종이를 보고 빈칸을 채워보세요!</h3>
+                        </div>
+                        
+                        <!-- Fixed Question Selection Tabs (Problem 1, 2, 3) -->
+                        <div class="flex items-center space-x-1.5" id="quizTabButtons">
+                            <button onclick="loadQuizProblem(0)" id="quizTabBtn0" class="quiz-tab-btn bg-indigo-600 text-white font-black text-xs md:text-sm px-3.5 py-1.5 rounded-xl shadow transition">1번 문제</button>
+                            <button onclick="loadQuizProblem(1)" id="quizTabBtn1" class="quiz-tab-btn bg-white hover:bg-indigo-100 text-indigo-900 font-bold text-xs md:text-sm px-3.5 py-1.5 rounded-xl border border-indigo-200 transition">2번 문제</button>
+                            <button onclick="loadQuizProblem(2)" id="quizTabBtn2" class="quiz-tab-btn bg-white hover:bg-indigo-100 text-indigo-900 font-bold text-xs md:text-sm px-3.5 py-1.5 rounded-xl border border-indigo-200 transition">3번 문제</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+                        
+                        <!-- Left Interactive Quiz Canvas (Image 2 style) -->
+                        <div class="md:col-span-6 bg-white p-2.5 rounded-2xl border-2 border-indigo-200 flex justify-center shadow-inner">
+                            <canvas id="quizProblemCanvas" width="300" height="300" class="max-w-full h-auto"></canvas>
+                        </div>
+
+                        <!-- Right Input Area for Students -->
+                        <div class="md:col-span-6 space-y-4 bg-white p-4 md:p-5 rounded-2xl border-2 border-indigo-200 shadow-sm">
+                            
+                            <!-- Cluster A Input -->
+                            <div class="p-3 bg-amber-50/70 rounded-xl border border-amber-200 space-y-2">
+                                <div class="flex items-center space-x-2 font-black text-rose-700 text-base md:text-lg">
+                                    <span class="w-4 h-4 rounded-full bg-yellow-400 border border-slate-800 inline-block"></span>
+                                    <span>군집 A 중심 위치 찾기</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 text-sm md:text-base font-bold text-slate-800">
+                                    <div class="flex items-center space-x-2">
+                                        <span>x좌표 평균:</span>
+                                        <input type="number" id="quizA_X" step="0.5" placeholder="값" class="w-16 p-1.5 border-2 border-indigo-300 rounded-lg text-center font-black text-indigo-900 focus:outline-none focus:border-indigo-600 bg-white">
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span>y좌표 평균:</span>
+                                        <input type="number" id="quizA_Y" step="0.5" placeholder="값" class="w-16 p-1.5 border-2 border-indigo-300 rounded-lg text-center font-black text-indigo-900 focus:outline-none focus:border-indigo-600 bg-white">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cluster B Input -->
+                            <div class="p-3 bg-emerald-50/70 rounded-xl border border-emerald-200 space-y-2">
+                                <div class="flex items-center space-x-2 font-black text-rose-700 text-base md:text-lg">
+                                    <span class="w-4 h-4 rounded-full bg-emerald-700 border border-slate-800 inline-block"></span>
+                                    <span>군집 B 중심 위치 찾기</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2 text-sm md:text-base font-bold text-slate-800">
+                                    <div class="flex items-center space-x-2">
+                                        <span>x좌표 평균:</span>
+                                        <input type="number" id="quizB_X" step="0.5" placeholder="값" class="w-16 p-1.5 border-2 border-indigo-300 rounded-lg text-center font-black text-indigo-900 focus:outline-none focus:border-indigo-600 bg-white">
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span>y좌표 평균:</span>
+                                        <input type="number" id="quizB_Y" step="0.5" placeholder="값" class="w-16 p-1.5 border-2 border-indigo-300 rounded-lg text-center font-black text-indigo-900 focus:outline-none focus:border-indigo-600 bg-white">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit & Feedback -->
+                            <div class="pt-1 text-center space-y-2">
+                                <button onclick="checkQuizAnswer()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg py-3 rounded-xl shadow-md transition active:scale-95 flex items-center justify-center space-x-2">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    <span>정답 확인하기!</span>
+                                </button>
+                                
+                                <div id="quizFeedbackBox" class="min-h-[42px] flex items-center justify-center font-extrabold text-base rounded-xl px-3 py-1.5 opacity-0 transition-opacity">
+                                    <!-- Dynamic feedback message -->
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Quiz Modal Footer -->
+            <div class="mt-5 text-center">
+                <button onclick="closeQuizModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-black text-base px-8 py-2.5 rounded-2xl transition">
+                    닫기 및 실험실로 돌아가기
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- Global Variables & Logic ---
+        let points = []; 
+        let centroids = []; 
+        let K = 3;
+        let iteration = 0;
+        let state = 'IDLE'; 
+        let isAutoPlaying = false;
+        let autoPlayTimer = null;
+        let soundEnabled = true;
+
+        // Current Quiz Data State
+        let currentQuizData = {
+            clusterA: [],
+            clusterB: [],
+            ansAX: 0,
+            ansAY: 0,
+            ansBX: 0,
+            ansBY: 0
+        };
+
+        // Bright friendly color palette
+        const CLUSTER_COLORS = [
+            { main: '#ef4444', light: 'rgba(239, 68, 68, 0.25)', name: '빨강' },
+            { main: '#3b82f6', light: 'rgba(59, 130, 246, 0.25)', name: '파랑' },
+            { main: '#22c55e', light: 'rgba(34, 197, 94, 0.25)', name: '초록' },
+            { main: '#a855f7', light: 'rgba(168, 85, 247, 0.25)', name: '보라' },
+            { main: '#f97316', light: 'rgba(249, 115, 22, 0.25)', name: '주황' },
+            { main: '#ec4899', light: 'rgba(236, 72, 153, 0.25)', name: '분홍' }
+        ];
+
+        // Canvas Setup
+        const canvas = document.getElementById('clusterCanvas');
+        const ctx = canvas.getContext('2d');
+        const canvasWrapper = document.getElementById('canvasWrapper');
+
+        // Modal Controls
+        function openModal() {
+            const modal = document.getElementById('guideModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('guideModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function openQuizModal() {
+            const modal = document.getElementById('quizModal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            drawQuizExampleCanvas();
+            loadQuizProblem(0); // Always start at Problem 1
+        }
+
+        function closeQuizModal() {
+            const modal = document.getElementById('quizModal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        // Web Audio API Sound Effects
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) audioCtx = new AudioContext();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            if (!audioCtx) return;
+
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                const now = audioCtx.currentTime;
+
+                if (type === 'pop') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(450, now);
+                    osc.frequency.exponentialRampToValueAtTime(850, now + 0.08);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'assign') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(350, now);
+                    osc.frequency.exponentialRampToValueAtTime(550, now + 0.1);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'move') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(900, now + 0.12);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+                    osc.start(now);
+                    osc.stop(now + 0.12);
+                } else if (type === 'complete' || type === 'correct') {
+                    [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.type = 'sine';
+                        o.frequency.setValueAtTime(freq, now + idx * 0.08);
+                        g.gain.setValueAtTime(0.25, now + idx * 0.08);
+                        g.gain.linearRampToValueAtTime(0.01, now + idx * 0.08 + 0.2);
+                        o.start(now + idx * 0.08);
+                        o.stop(now + idx * 0.08 + 0.2);
+                    });
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.linearRampToValueAtTime(150, now + 0.2);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                }
+            } catch (e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundIcon').className = soundEnabled ? 'fa-solid fa-volume-high text-lg' : 'fa-solid fa-volume-xmark text-lg';
+            document.getElementById('soundLabel').textContent = soundEnabled ? '소리 켜짐' : '소리 끔';
+        }
+
+        // Canvas Responsive Resize
+        function resizeCanvas() {
+            const rect = canvasWrapper.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            redrawCanvas();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function getCanvasRect() {
+            return canvasWrapper.getBoundingClientRect();
+        }
+
+        // Handle Click to Add Point
+        canvas.addEventListener('pointerdown', (e) => {
+            initAudio();
+            const rect = getCanvasRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            if (x < 0 || x > rect.width || y < 0 || y > rect.height) return;
+
+            points.push({ x, y, cluster: -1 });
+            playSound('pop');
+
+            if (state === 'CONVERGED') {
+                state = 'IDLE';
+            }
+            
+            updateUI();
+            redrawCanvas();
+        });
+
+        // K Slider & Buttons
+        function adjustK(delta) {
+            let newK = K + delta;
+            if (newK < 1) newK = 1;
+            if (newK > 6) newK = 6;
+            onKSliderChange(newK);
+        }
+
+        function onKSliderChange(val) {
+            K = parseInt(val);
+            document.getElementById('kSlider').value = K;
+            document.getElementById('kValueDisplay').textContent = `K = ${K}`;
+            initCentroids('kmeans++');
+        }
+
+        // Preset Data Loader
+        function loadPreset(type) {
+            stopAutoPlay();
+            const rect = getCanvasRect();
+            const w = rect.width || 600;
+            const h = rect.height || 400;
+
+            // Highlight active preset button
+            const btnRandom = document.getElementById('btnPresetRandom');
+            const btnClusters = document.getElementById('btnPresetClusters');
+            if (btnRandom && btnClusters) {
+                if (type === 'random') {
+                    btnRandom.className = "bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-bold text-sm md:text-base py-2.5 px-2 rounded-2xl border-2 border-emerald-200 transition flex items-center justify-center space-x-1.5 active:scale-95";
+                    btnClusters.className = "bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-sm md:text-base py-2.5 px-2 rounded-2xl border-2 border-slate-200 transition flex items-center justify-center space-x-1.5 active:scale-95";
+                } else {
+                    btnClusters.className = "bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-bold text-sm md:text-base py-2.5 px-2 rounded-2xl border-2 border-emerald-200 transition flex items-center justify-center space-x-1.5 active:scale-95";
+                    btnRandom.className = "bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold text-sm md:text-base py-2.5 px-2 rounded-2xl border-2 border-slate-200 transition flex items-center justify-center space-x-1.5 active:scale-95";
+                }
+            }
+
+            points = [];
+
+            if (type === 'clusters3') {
+                const centers = [
+                    { x: w * 0.25, y: h * 0.35 },
+                    { x: w * 0.75, y: h * 0.35 },
+                    { x: w * 0.5, y: h * 0.75 }
+                ];
+                centers.forEach(c => {
+                    for (let i = 0; i < 28; i++) {
+                        const r = Math.random() * 80;
+                        const angle = Math.random() * Math.PI * 2;
+                        points.push({
+                            x: Math.max(30, Math.min(w - 30, c.x + r * Math.cos(angle))),
+                            y: Math.max(30, Math.min(h - 30, c.y + r * Math.sin(angle))),
+                            cluster: -1
+                        });
+                    }
+                });
+            } else if (type === 'random') {
+                for (let i = 0; i < 75; i++) {
+                    points.push({
+                        x: 30 + Math.random() * (w - 60),
+                        y: 30 + Math.random() * (h - 60),
+                        cluster: -1
+                    });
+                }
+            }
+
+            initCentroids('kmeans++');
+        }
+
+        function clearPoints() {
+            stopAutoPlay();
+            points = [];
+            centroids = [];
+            iteration = 0;
+            state = 'IDLE';
+            updateUI();
+            redrawCanvas();
+        }
+
+        // Initialize Centroids
+        function initCentroids(method = 'kmeans++') {
+            stopAutoPlay();
+            const rect = getCanvasRect();
+            const w = rect.width || 600;
+            const h = rect.height || 400;
+
+            iteration = 0;
+            state = 'IDLE';
+            points.forEach(p => p.cluster = -1);
+            centroids = [];
+
+            if (points.length === 0) {
+                for (let i = 0; i < K; i++) {
+                    centroids.push({
+                        x: 60 + Math.random() * (w - 120),
+                        y: 60 + Math.random() * (h - 120),
+                        color: CLUSTER_COLORS[i % CLUSTER_COLORS.length]
+                    });
+                }
+            } else {
+                // Smart placement for distant initial centroids
+                const firstIdx = Math.floor(Math.random() * points.length);
+                centroids.push({
+                    x: points[firstIdx].x,
+                    y: points[firstIdx].y,
+                    color: CLUSTER_COLORS[0]
+                });
+
+                while (centroids.length < K && centroids.length < points.length) {
+                    let distances = points.map(p => {
+                        let minDist = Infinity;
+                        centroids.forEach(c => {
+                            const d = Math.hypot(p.x - c.x, p.y - c.y);
+                            if (d < minDist) minDist = d;
+                        });
+                        return minDist;
+                    });
+
+                    let maxDistIdx = 0;
+                    for (let i = 1; i < distances.length; i++) {
+                        if (distances[i] > distances[maxDistIdx]) maxDistIdx = i;
+                    }
+
+                    const nextP = points[maxDistIdx];
+                    centroids.push({
+                        x: nextP.x,
+                        y: nextP.y,
+                        color: CLUSTER_COLORS[centroids.length % CLUSTER_COLORS.length]
+                    });
+                }
+            }
+
+            updateUI();
+            redrawCanvas();
+        }
+
+        // Run Single Step
+        function runOneStep() {
+            if (points.length === 0) {
+                loadPreset('random');
+                return;
+            }
+
+            if (centroids.length === 0) {
+                initCentroids('kmeans++');
+            }
+
+            if (state === 'CONVERGED') {
+                showCompletionOverlay();
+                return;
+            }
+
+            if (state === 'IDLE' || state === 'UPDATED') {
+                // Assign Phase
+                points.forEach(p => {
+                    let minDist = Infinity;
+                    let closestCluster = -1;
+
+                    centroids.forEach((c, idx) => {
+                        const dist = Math.hypot(p.x - c.x, p.y - c.y);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            closestCluster = idx;
+                        }
+                    });
+
+                    p.cluster = closestCluster;
+                });
+
+                state = 'ASSIGNED';
+                playSound('assign');
+                updateUI();
+                redrawCanvas();
+
+            } else if (state === 'ASSIGNED') {
+                // Update Phase
+                iteration++;
+                let totalShift = 0;
+
+                centroids.forEach((c, idx) => {
+                    const clusterPoints = points.filter(p => p.cluster === idx);
+                    if (clusterPoints.length > 0) {
+                        const sumX = clusterPoints.reduce((sum, p) => sum + p.x, 0);
+                        const sumY = clusterPoints.reduce((sum, p) => sum + p.y, 0);
+                        const newX = sumX / clusterPoints.length;
+                        const newY = sumY / clusterPoints.length;
+
+                        totalShift += Math.hypot(c.x - newX, c.y - newY);
+                        c.x = newX;
+                        c.y = newY;
+                    }
+                });
+
+                playSound('move');
+
+                if (totalShift < 0.5) {
+                    state = 'CONVERGED';
+                    stopAutoPlay();
+                    playSound('complete');
+                    showCompletionOverlay();
+                } else {
+                    state = 'UPDATED';
+                }
+
+                updateUI();
+                redrawCanvas();
+            }
+        }
+
+        // Auto Play Toggle
+        function toggleAutoPlay() {
+            if (isAutoPlaying) {
+                stopAutoPlay();
+            } else {
+                startAutoPlay();
+            }
+        }
+
+        function startAutoPlay() {
+            if (points.length === 0) loadPreset('random');
+            if (state === 'CONVERGED') initCentroids('kmeans++');
+
+            isAutoPlaying = true;
+            document.getElementById('autoIcon').className = 'fa-solid fa-pause text-xl';
+            document.getElementById('autoLabel').textContent = '일시 정지';
+
+            autoPlayTimer = setInterval(() => {
+                if (state === 'CONVERGED') {
+                    stopAutoPlay();
+                } else {
+                    runOneStep();
+                }
+            }, 800);
+        }
+
+        function stopAutoPlay() {
+            isAutoPlaying = false;
+            if (autoPlayTimer) clearInterval(autoPlayTimer);
+            autoPlayTimer = null;
+            document.getElementById('autoIcon').className = 'fa-solid fa-play text-xl';
+            document.getElementById('autoLabel').textContent = '자동 실행';
+        }
+
+        function resetSimulation() {
+            stopAutoPlay();
+            iteration = 0;
+            state = 'IDLE';
+            points.forEach(p => p.cluster = -1);
+            initCentroids('kmeans++');
+        }
+
+        // Update Messages & State Labels
+        function updateUI() {
+            document.getElementById('iterCountBadge').textContent = `${iteration}회 반복중`;
+
+            const phaseBadge = document.getElementById('phaseBadge');
+            const mascotMsg = document.getElementById('mascotMessage');
+            const statusText = document.getElementById('canvasStatusText');
+
+            if (points.length === 0) {
+                phaseBadge.textContent = '데이터 없음';
+                mascotMsg.textContent = '캔버스를 터치해 점을 추가하거나 위 데이터 버튼을 클릭해 보세요!';
+                statusText.textContent = '화면을 터치하여 점을 만들어보세요!';
+                return;
+            }
+
+            if (state === 'IDLE') {
+                phaseBadge.textContent = '준비 완료 (대기 중)';
+                mascotMsg.textContent = `모둠 수 K=${K}개로 지정되었습니다. '1단계씩' 또는 '자동 실행'을 눌러보세요!`;
+                statusText.textContent = '모둠 대표 깃발 위치를 정하고 실행을 기다리는 중입니다.';
+            } else if (state === 'ASSIGNED') {
+                phaseBadge.textContent = '1단계: 가까운 쪽에 줄서기';
+                mascotMsg.textContent = '각 데이터 점들이 가장 가까운 대표 깃발의 색으로 지정되었습니다.';
+                statusText.textContent = '가장 가까운 모둠 대표 색으로 변경되었습니다.';
+            } else if (state === 'UPDATED') {
+                phaseBadge.textContent = '2단계: 모둠 중간(평균)으로 이동';
+                mascotMsg.textContent = '대표 깃발이 모여있는 점들의 딱 중간(평균) 위치로 이동했습니다.';
+                statusText.textContent = '대표 깃발이 그룹의 평균 위치로 이동했습니다.';
+            } else if (state === 'CONVERGED') {
+                phaseBadge.textContent = '🎉 완벽한 군집화 완료!';
+                mascotMsg.textContent = '대표 깃발이 더 이상 움직이지 않습니다. 깔끔하게 군집화가 완성되었습니다!';
+                statusText.textContent = '군집화 성공! 완성되었습니다.';
+            }
+        }
+
+        function showCompletionOverlay() {
+            const overlay = document.getElementById('completionOverlay');
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function dismissOverlay() {
+            const overlay = document.getElementById('completionOverlay');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function redrawCanvas() {
+            const rect = getCanvasRect();
+            const w = rect.width;
+            const h = rect.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            const showLines = document.getElementById('showLinesCheck').checked;
+
+            // 1. Draw connection lines
+            if (showLines && centroids.length > 0 && state !== 'IDLE') {
+                points.forEach(p => {
+                    if (p.cluster >= 0 && p.cluster < centroids.length) {
+                        const c = centroids[p.cluster];
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(c.x, c.y);
+                        ctx.strokeStyle = c.color.light;
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    }
+                });
+            }
+
+            // 2. Draw Data Points (Larger for readability)
+            points.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 9, 0, Math.PI * 2);
+
+                if (p.cluster >= 0 && p.cluster < centroids.length) {
+                    ctx.fillStyle = centroids[p.cluster].color.main;
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2.5;
+                } else {
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                }
+
+                ctx.fill();
+                ctx.stroke();
+            });
+
+            // 3. Draw Centroids
+            centroids.forEach((c, idx) => {
+                // Aura ring
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, 22, 0, Math.PI * 2);
+                ctx.fillStyle = c.color.light;
+                ctx.fill();
+
+                // Centroid circle
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, 16, 0, Math.PI * 2);
+                ctx.fillStyle = c.color.main;
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 3.5;
+                ctx.fill();
+                ctx.stroke();
+
+                // Star icon inside centroid
+                drawStar(ctx, c.x, c.y, 5, 8, 4, '#ffffff');
+
+                // Label Text
+                ctx.font = 'bold 13px "Noto Sans KR", sans-serif';
+                ctx.fillStyle = '#0f172a';
+                ctx.textAlign = 'center';
+                ctx.fillText(`대표 ${idx + 1}`, c.x, c.y - 24);
+            });
+        }
+
+        function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius, color) {
+            let rot = Math.PI / 2 * 3;
+            let x = cx;
+            let y = cy;
+            let step = Math.PI / spikes;
+
+            ctx.beginPath();
+            ctx.moveTo(cx, cy - outerRadius);
+            for (let i = 0; i < spikes; i++) {
+                x = cx + Math.cos(rot) * outerRadius;
+                y = cy + Math.sin(rot) * outerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+
+                x = cx + Math.cos(rot) * innerRadius;
+                y = cy + Math.sin(rot) * innerRadius;
+                ctx.lineTo(x, y);
+                rot += step;
+            }
+            ctx.lineTo(cx, cy - outerRadius);
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        // --- QUIZ CANVAS & GENERATOR LOGIC ---
+        function drawQuizGridCanvas(canvasId, pointsA, pointsB, showLabels = true) {
+            const qCanvas = document.getElementById(canvasId);
+            if (!qCanvas) return;
+            const qCtx = qCanvas.getContext('2d');
+            const w = qCanvas.width;
+            const h = qCanvas.height;
+
+            const margin = 35;
+            const gridSize = 6;
+            const step = (w - margin * 2) / gridSize;
+
+            qCtx.clearRect(0, 0, w, h);
+            qCtx.fillStyle = '#ffffff';
+            qCtx.fillRect(0, 0, w, h);
+
+            // Draw Grid Lines
+            qCtx.strokeStyle = '#cbd5e1';
+            qCtx.lineWidth = 1;
+
+            for (let i = 0; i <= gridSize; i++) {
+                const pos = margin + i * step;
+
+                // Vertical line
+                qCtx.beginPath();
+                qCtx.moveTo(pos, margin);
+                qCtx.lineTo(pos, h - margin);
+                qCtx.stroke();
+
+                // Horizontal line
+                qCtx.beginPath();
+                qCtx.moveTo(margin, pos);
+                qCtx.lineTo(w - margin, pos);
+                qCtx.stroke();
+            }
+
+            // Draw Axes
+            qCtx.strokeStyle = '#0f172a';
+            qCtx.lineWidth = 2.5;
+
+            // X axis
+            qCtx.beginPath();
+            qCtx.moveTo(margin, h - margin);
+            qCtx.lineTo(w - margin + 10, h - margin);
+            qCtx.stroke();
+
+            // Y axis
+            qCtx.beginPath();
+            qCtx.moveTo(margin, h - margin);
+            qCtx.lineTo(margin, margin - 10);
+            qCtx.stroke();
+
+            // Axis labels & tick numbers
+            qCtx.font = 'bold 13px "Noto Sans KR", sans-serif';
+            qCtx.fillStyle = '#0f172a';
+            qCtx.textAlign = 'center';
+            qCtx.textBaseline = 'middle';
+
+            qCtx.fillText('x', w - margin + 18, h - margin);
+            qCtx.fillText('y', margin, margin - 20);
+
+            for (let i = 0; i <= gridSize; i++) {
+                const px = margin + i * step;
+                const py = h - margin - i * step;
+
+                // X numbers
+                qCtx.fillText(i, px, h - margin + 18);
+                // Y numbers
+                if (i > 0) qCtx.fillText(i, margin - 16, py);
+            }
+
+            // Convert Grid Coordinates (0~6) to Canvas Pixels
+            function gridToPx(gx, gy) {
+                return {
+                    x: margin + gx * step,
+                    y: h - margin - gy * step
+                };
+            }
+
+            // Draw Cluster A Points (Yellow Circles)
+            pointsA.forEach((p, idx) => {
+                const pix = gridToPx(p.x, p.y);
+                qCtx.beginPath();
+                qCtx.arc(pix.x, pix.y, 11, 0, Math.PI * 2);
+                qCtx.fillStyle = '#facc15'; // Bright Yellow
+                qCtx.strokeStyle = '#0f172a';
+                qCtx.lineWidth = 2;
+                qCtx.fill();
+                qCtx.stroke();
+
+                if (showLabels && p.num) {
+                    qCtx.fillStyle = '#0f172a';
+                    qCtx.font = 'bold 11px sans-serif';
+                    qCtx.fillText(p.num, pix.x, pix.y);
+                }
+            });
+
+            // Draw Cluster B Points (Dark Green Circles)
+            if (pointsB) {
+                pointsB.forEach((p, idx) => {
+                    const pix = gridToPx(p.x, p.y);
+                    qCtx.beginPath();
+                    qCtx.arc(pix.x, pix.y, 11, 0, Math.PI * 2);
+                    qCtx.fillStyle = '#365314'; // Dark Green / Olive
+                    qCtx.strokeStyle = '#ffffff';
+                    qCtx.lineWidth = 2;
+                    qCtx.fill();
+                    qCtx.stroke();
+                });
+            }
+
+            // Draw Top Legend if Labels active
+            if (showLabels) {
+                qCtx.font = 'bold 13px "Noto Sans KR", sans-serif';
+                qCtx.textAlign = 'left';
+
+                // Cluster A Legend
+                qCtx.beginPath();
+                qCtx.arc(margin + 10, 15, 7, 0, Math.PI * 2);
+                qCtx.fillStyle = '#facc15';
+                qCtx.strokeStyle = '#0f172a';
+                qCtx.fill();
+                qCtx.stroke();
+                qCtx.fillStyle = '#0f172a';
+                qCtx.fillText('군집 A', margin + 22, 15);
+
+                // Cluster B Legend
+                if (pointsB && pointsB.length > 0) {
+                    qCtx.beginPath();
+                    qCtx.arc(margin + 100, 15, 7, 0, Math.PI * 2);
+                    qCtx.fillStyle = '#365314';
+                    qCtx.strokeStyle = '#ffffff';
+                    qCtx.fill();
+                    qCtx.stroke();
+                    qCtx.fillStyle = '#0f172a';
+                    qCtx.fillText('군집 B', margin + 112, 15);
+                }
+            }
+        }
+
+        function drawQuizExampleCanvas() {
+            // Points matching Image 1
+            const exPointsA = [
+                { x: 2, y: 2, num: '①' },
+                { x: 4, y: 1, num: '②' },
+                { x: 6, y: 6, num: '③' }
+            ];
+            drawQuizGridCanvas('quizExampleCanvas', exPointsA, null, true);
+        }
+
+        // --- 3 FIXED QUIZ PROBLEMS FOR ALL STUDENTS ---
+        const FIXED_QUIZ_PROBLEMS = [
+            {
+                // Problem 1 (Matches Image 2 style)
+                clusterA: [{ x: 1, y: 4 }, { x: 5, y: 6 }], // Avg: (3, 5)
+                clusterB: [{ x: 3, y: 1 }, { x: 4, y: 3 }, { x: 5, y: 2 }] // Avg: (4, 2)
+            },
+            {
+                // Problem 2
+                clusterA: [{ x: 2, y: 2 }, { x: 4, y: 6 }], // Avg: (3, 4)
+                clusterB: [{ x: 2, y: 1 }, { x: 4, y: 1 }, { x: 6, y: 1 }] // Avg: (4, 1)
+            },
+            {
+                // Problem 3
+                clusterA: [{ x: 1, y: 2 }, { x: 3, y: 4 }, { x: 5, y: 3 }], // Avg: (3, 3)
+                clusterB: [{ x: 2, y: 6 }, { x: 6, y: 6 }] // Avg: (4, 6)
+            }
+        ];
+
+        let currentQuizIndex = 0;
+
+        function loadQuizProblem(index) {
+            currentQuizIndex = index;
+
+            // Update tab button styles
+            for (let i = 0; i < 3; i++) {
+                const btn = document.getElementById(`quizTabBtn${i}`);
+                if (btn) {
+                    if (i === index) {
+                        btn.className = "quiz-tab-btn bg-indigo-600 text-white font-black text-xs md:text-sm px-3.5 py-1.5 rounded-xl shadow transition";
+                    } else {
+                        btn.className = "quiz-tab-btn bg-white hover:bg-indigo-100 text-indigo-900 font-bold text-xs md:text-sm px-3.5 py-1.5 rounded-xl border border-indigo-200 transition";
+                    }
+                }
+            }
+
+            const selected = FIXED_QUIZ_PROBLEMS[index];
+            
+            // Calculate exact answers
+            const sumAX = selected.clusterA.reduce((sum, p) => sum + p.x, 0);
+            const sumAY = selected.clusterA.reduce((sum, p) => sum + p.y, 0);
+            const sumBX = selected.clusterB.reduce((sum, p) => sum + p.x, 0);
+            const sumBY = selected.clusterB.reduce((sum, p) => sum + p.y, 0);
+
+            currentQuizData = {
+                clusterA: selected.clusterA,
+                clusterB: selected.clusterB,
+                ansAX: sumAX / selected.clusterA.length,
+                ansAY: sumAY / selected.clusterA.length,
+                ansBX: sumBX / selected.clusterB.length,
+                ansBY: sumBY / selected.clusterB.length
+            };
+
+            // Reset inputs & feedback message
+            document.getElementById('quizA_X').value = '';
+            document.getElementById('quizA_Y').value = '';
+            document.getElementById('quizB_X').value = '';
+            document.getElementById('quizB_Y').value = '';
+            
+            const fbBox = document.getElementById('quizFeedbackBox');
+            fbBox.className = "min-h-[42px] flex items-center justify-center font-extrabold text-base rounded-xl px-3 py-1.5 opacity-0 transition-opacity";
+            fbBox.textContent = '';
+
+            // Render selected question grid
+            drawQuizGridCanvas('quizProblemCanvas', currentQuizData.clusterA, currentQuizData.clusterB, true);
+        }
+
+        function checkQuizAnswer() {
+            initAudio();
+            const inputAX = parseFloat(document.getElementById('quizA_X').value);
+            const inputAY = parseFloat(document.getElementById('quizA_Y').value);
+            const inputBX = parseFloat(document.getElementById('quizB_X').value);
+            const inputBY = parseFloat(document.getElementById('quizB_Y').value);
+
+            const fbBox = document.getElementById('quizFeedbackBox');
+            fbBox.classList.remove('opacity-0');
+
+            if (isNaN(inputAX) || isNaN(inputAY) || isNaN(inputBX) || isNaN(inputBY)) {
+                fbBox.className = "min-h-[42px] flex items-center justify-center font-extrabold text-base rounded-xl px-3 py-1.5 bg-amber-100 text-amber-900 border border-amber-300";
+                fbBox.textContent = "💡 모든 빈칸의 숫자를 빠짐없이 입력해주세요!";
+                playSound('wrong');
+                return;
+            }
+
+            const isACorrect = (Math.abs(inputAX - currentQuizData.ansAX) < 0.01) && (Math.abs(inputAY - currentQuizData.ansAY) < 0.01);
+            const isBCorrect = (Math.abs(inputBX - currentQuizData.ansBX) < 0.01) && (Math.abs(inputBY - currentQuizData.ansBY) < 0.01);
+
+            if (isACorrect && isBCorrect) {
+                fbBox.className = "min-h-[42px] flex items-center justify-center font-black text-lg rounded-xl px-3 py-1.5 bg-emerald-500 text-white shadow-md animate-bounce";
+                fbBox.textContent = `🎉 ${currentQuizIndex + 1}번 문제 정답입니다! 아주 훌륭해요! AI처럼 정확히 평균을 계산했어요!`;
+                playSound('correct');
+            } else {
+                fbBox.className = "min-h-[42px] flex items-center justify-center font-extrabold text-base rounded-xl px-3 py-1.5 bg-rose-100 text-rose-900 border border-rose-300";
+                fbBox.textContent = "❌ 아쉬워요! x좌표의 합과 y좌표의 합을 각각 점의 개수로 나누었는지 다시 계산해보세요!";
+                playSound('wrong');
+            }
+        }
+
+        // On Page Load
+        window.onload = function() {
+            resizeCanvas();
+            setTimeout(() => {
+                loadPreset('random');
+            }, 100);
+        };
+    </script>
+</body>
+</html>
